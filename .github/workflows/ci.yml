@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  core:
+    # ReceiptCapture.Core and its tests are plain .NET and build anywhere. The iOS
+    # head needs macOS and Xcode, so it is not part of this job — see ios-build.
+    name: Core build and tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore src/ReceiptCapture.Core/ReceiptCapture.Core.csproj tests/ReceiptCapture.Core.Tests/ReceiptCapture.Core.Tests.csproj
+
+      - name: Build
+        run: dotnet build tests/ReceiptCapture.Core.Tests --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test tests/ReceiptCapture.Core.Tests --configuration Release --no-build --logger "trx;LogFileName=core-tests.trx"
+
+      - name: Check XAML and localization references
+        run: python3 tools/check-resources.py
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-test-results
+          path: "**/*.trx"
+          if-no-files-found: ignore
+
+  ios-build:
+    name: iOS build
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-ios
+
+      - name: Build the iPhone app
+        # Simulator build: no signing identity required, so this runs on a fork's PR.
+        run: >
+          dotnet build src/ReceiptCapture.App/ReceiptCapture.App.csproj
+          --configuration Release
+          -f net10.0-ios
+          -p:RuntimeIdentifier=iossimulator-arm64
+          -p:CodesignKey=

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ReceiptCapture.App/ReceiptCapture.App.csproj" />
+    <Project Path="src/ReceiptCapture.Core/ReceiptCapture.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ReceiptCapture.Core.Tests/ReceiptCapture.Core.Tests.csproj" />
+  </Folder>
+</Solution>

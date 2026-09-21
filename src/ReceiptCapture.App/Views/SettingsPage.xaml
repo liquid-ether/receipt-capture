@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:ReceiptCapture.App.Services"
+             xmlns:vm="clr-namespace:ReceiptCapture.App.ViewModels"
+             x:Class="ReceiptCapture.App.Views.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             Title="{loc:Translate Settings_Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16" Spacing="12">
+
+            <Label Text="{loc:Translate Settings_AccountingSection}" Style="{StaticResource SectionHeading}" />
+
+            <Label Text="{loc:Translate Settings_Endpoint}" Style="{StaticResource FieldLabel}" />
+            <Entry Text="{Binding Endpoint}"
+                   Placeholder="{loc:Translate Settings_EndpointPlaceholder}"
+                   Keyboard="Url"
+                   IsTextPredictionEnabled="False"
+                   IsSpellCheckEnabled="False" />
+
+            <Label Text="{loc:Translate Settings_ApiKey}" Style="{StaticResource FieldLabel}" />
+            <Entry Text="{Binding ApiKey}"
+                   IsPassword="True"
+                   IsTextPredictionEnabled="False"
+                   IsSpellCheckEnabled="False" />
+
+            <Label Text="{Binding KeychainNote}" Style="{StaticResource Caption}" />
+
+            <Label Text="{loc:Translate Settings_ApiKeyHeader}" Style="{StaticResource FieldLabel}" />
+            <Entry Text="{Binding ApiKeyHeaderName}"
+                   IsTextPredictionEnabled="False"
+                   IsSpellCheckEnabled="False" />
+
+            <HorizontalStackLayout Spacing="8">
+                <Switch IsToggled="{Binding IncludeImage}" />
+                <Label Text="{loc:Translate Settings_IncludeImage}" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Label Text="{loc:Translate Settings_Language}" Style="{StaticResource SectionHeading}" />
+            <Picker ItemsSource="{Binding LanguageNames}" SelectedIndex="{Binding SelectedLanguageIndex}" />
+
+            <Label Text="{Binding StatusMessage}"
+                   Style="{StaticResource Caption}"
+                   IsVisible="{Binding StatusMessage, Converter={StaticResource IsNotEmpty}}" />
+            <Label Text="{Binding ErrorMessage}"
+                   Style="{StaticResource ErrorLabel}"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotEmpty}}" />
+
+            <Button Text="{loc:Translate Settings_TestConnection}"
+                    Style="{StaticResource SecondaryButton}"
+                    Command="{Binding TestConnectionCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="{loc:Translate Settings_Save}"
+                    Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

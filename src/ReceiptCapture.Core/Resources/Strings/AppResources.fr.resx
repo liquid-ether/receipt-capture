@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App_Title" xml:space="preserve">
+    <value>Capture de reçus</value>
+  </data>
+  <data name="Tab_Capture" xml:space="preserve">
+    <value>Capture</value>
+  </data>
+  <data name="Tab_History" xml:space="preserve">
+    <value>Historique</value>
+  </data>
+  <data name="Tab_Settings" xml:space="preserve">
+    <value>Réglages</value>
+  </data>
+  <data name="Capture_Title" xml:space="preserve">
+    <value>Capturer un reçu</value>
+  </data>
+  <data name="Capture_TakePhoto" xml:space="preserve">
+    <value>Prendre une photo</value>
+  </data>
+  <data name="Capture_ChooseFromLibrary" xml:space="preserve">
+    <value>Choisir dans la photothèque</value>
+  </data>
+  <data name="Capture_Reading" xml:space="preserve">
+    <value>Lecture du reçu…</value>
+  </data>
+  <data name="Capture_CameraUnavailable" xml:space="preserve">
+    <value>L'appareil photo n'est pas disponible sur cet appareil.</value>
+  </data>
+  <data name="Capture_NothingRecognized" xml:space="preserve">
+    <value>Aucun texte n'a pu être lu sur cette photo. Réessayez avec plus de lumière.</value>
+  </data>
+  <data name="Capture_PendingCount" xml:space="preserve">
+    <value>{0} reçu(s) en attente d'envoi</value>
+  </data>
+  <data name="Review_Title" xml:space="preserve">
+    <value>Vérifier les détails</value>
+  </data>
+  <data name="Review_Merchant" xml:space="preserve">
+    <value>Commerçant</value>
+  </data>
+  <data name="Review_Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Review_Currency" xml:space="preserve">
+    <value>Devise</value>
+  </data>
+  <data name="Review_Subtotal" xml:space="preserve">
+    <value>Sous-total</value>
+  </data>
+  <data name="Review_Taxes" xml:space="preserve">
+    <value>Taxes</value>
+  </data>
+  <data name="Review_Tip" xml:space="preserve">
+    <value>Pourboire</value>
+  </data>
+  <data name="Review_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Review_Category" xml:space="preserve">
+    <value>Catégorie</value>
+  </data>
+  <data name="Review_Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="Review_AddTax" xml:space="preserve">
+    <value>Ajouter une ligne de taxe</value>
+  </data>
+  <data name="Review_RemoveTax" xml:space="preserve">
+    <value>Retirer</value>
+  </data>
+  <data name="Review_TaxCode" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="Review_TaxAmount" xml:space="preserve">
+    <value>Montant</value>
+  </data>
+  <data name="Review_Send" xml:space="preserve">
+    <value>Envoyer à la comptabilité</value>
+  </data>
+  <data name="Review_Discard" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Review_DiscardConfirm" xml:space="preserve">
+    <value>Supprimer ce reçu et sa photo ?</value>
+  </data>
+  <data name="Review_Queued" xml:space="preserve">
+    <value>Reçu mis en file d'attente pour la comptabilité.</value>
+  </data>
+  <data name="Warning_MerchantNotFound" xml:space="preserve">
+    <value>Le nom du commerçant n'a pas pu être lu. Veuillez le saisir.</value>
+  </data>
+  <data name="Warning_DateNotFound" xml:space="preserve">
+    <value>Aucune date n'a été trouvée sur le reçu. Veuillez la saisir.</value>
+  </data>
+  <data name="Warning_DateAmbiguous" xml:space="preserve">
+    <value>La date peut se lire de deux façons. Veuillez la confirmer.</value>
+  </data>
+  <data name="Warning_TotalNotFound" xml:space="preserve">
+    <value>Le total n'a pas pu être lu. Veuillez le saisir.</value>
+  </data>
+  <data name="Warning_TotalComputed" xml:space="preserve">
+    <value>Le total a été calculé à partir du sous-total et des taxes. Veuillez le confirmer.</value>
+  </data>
+  <data name="Warning_TotalsDoNotReconcile" xml:space="preserve">
+    <value>Le sous-total, les taxes et le total ne concordent pas. Veuillez vérifier les montants.</value>
+  </data>
+  <data name="Status_Draft" xml:space="preserve">
+    <value>Brouillon</value>
+  </data>
+  <data name="Status_Pending" xml:space="preserve">
+    <value>En attente d'envoi</value>
+  </data>
+  <data name="Status_Sent" xml:space="preserve">
+    <value>Envoyé</value>
+  </data>
+  <data name="Status_Failed" xml:space="preserve">
+    <value>Échec</value>
+  </data>
+  <data name="History_Title" xml:space="preserve">
+    <value>Historique</value>
+  </data>
+  <data name="History_Empty" xml:space="preserve">
+    <value>Aucun reçu pour l'instant. Capturez-en un pour commencer.</value>
+  </data>
+  <data name="History_SyncNow" xml:space="preserve">
+    <value>Envoyer les reçus en attente</value>
+  </data>
+  <data name="History_Retry" xml:space="preserve">
+    <value>Réessayer</value>
+  </data>
+  <data name="History_Delete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="History_SyncResult" xml:space="preserve">
+    <value>{0} envoyé(s), {1} à réessayer, {2} en échec</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Réglages</value>
+  </data>
+  <data name="Settings_AccountingSection" xml:space="preserve">
+    <value>Système comptable</value>
+  </data>
+  <data name="Settings_Endpoint" xml:space="preserve">
+    <value>URL du point d'accès</value>
+  </data>
+  <data name="Settings_EndpointPlaceholder" xml:space="preserve">
+    <value>https://books.example.com/api/receipts</value>
+  </data>
+  <data name="Settings_ApiKey" xml:space="preserve">
+    <value>Clé d'API</value>
+  </data>
+  <data name="Settings_ApiKeyHeader" xml:space="preserve">
+    <value>En-tête de la clé d'API</value>
+  </data>
+  <data name="Settings_IncludeImage" xml:space="preserve">
+    <value>Envoyer la photo du reçu</value>
+  </data>
+  <data name="Settings_TestConnection" xml:space="preserve">
+    <value>Tester la connexion</value>
+  </data>
+  <data name="Settings_ConnectionOk" xml:space="preserve">
+    <value>Connexion réussie.</value>
+  </data>
+  <data name="Settings_ConnectionFailed" xml:space="preserve">
+    <value>Échec de la connexion : {0}</value>
+  </data>
+  <data name="Settings_Save" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="Settings_Saved" xml:space="preserve">
+    <value>Réglages enregistrés.</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="Settings_KeychainNote" xml:space="preserve">
+    <value>La clé d'API est conservée dans le trousseau iOS, jamais dans la base de données des reçus.</value>
+  </data>
+  <data name="Validation_TotalRequired" xml:space="preserve">
+    <value>Saisissez le total indiqué sur le reçu.</value>
+  </data>
+  <data name="Validation_TotalPositive" xml:space="preserve">
+    <value>Le total doit être supérieur à zéro.</value>
+  </data>
+  <data name="Validation_EndpointRequired" xml:space="preserve">
+    <value>Saisissez l'URL du point d'accès de votre système comptable.</value>
+  </data>
+  <data name="Validation_EndpointHttps" xml:space="preserve">
+    <value>L'URL du point d'accès doit commencer par https://.</value>
+  </data>
+  <data name="Category_MEALS" xml:space="preserve">
+    <value>Repas</value>
+  </data>
+  <data name="Category_TRAVEL" xml:space="preserve">
+    <value>Déplacements</value>
+  </data>
+  <data name="Category_LODGING" xml:space="preserve">
+    <value>Hébergement</value>
+  </data>
+  <data name="Category_FUEL" xml:space="preserve">
+    <value>Carburant</value>
+  </data>
+  <data name="Category_OFFICE_SUPPLIES" xml:space="preserve">
+    <value>Fournitures de bureau</value>
+  </data>
+  <data name="Category_SOFTWARE" xml:space="preserve">
+    <value>Logiciels</value>
+  </data>
+  <data name="Category_TELECOM" xml:space="preserve">
+    <value>Télécommunications</value>
+  </data>
+  <data name="Category_ENTERTAINMENT" xml:space="preserve">
+    <value>Représentation</value>
+  </data>
+  <data name="Category_PROFESSIONAL_SERVICES" xml:space="preserve">
+    <value>Services professionnels</value>
+  </data>
+  <data name="Category_OTHER" xml:space="preserve">
+    <value>Autre</value>
+  </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Common_Error" xml:space="preserve">
+    <value>Une erreur est survenue</value>
+  </data>
+</root>

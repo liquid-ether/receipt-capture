@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UIDeviceFamily</key>
+	<array>
+		<!-- iPhone only. -->
+		<integer>1</integer>
+	</array>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>XSAppIconAssets</key>
+	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>UILaunchStoryboardName</key>
+	<string>MauiSplash</string>
+
+	<!--
+		Permission prompts. iOS shows these sentences verbatim and rejects the app at
+		review if they are missing. The localized wording lives in the .lproj
+		InfoPlist.strings files beside this one; these are the English fallbacks.
+	-->
+	<key>NSCameraUsageDescription</key>
+	<string>Receipt Capture uses the camera to photograph your receipts.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Receipt Capture lets you pick a receipt photo you already took.</string>
+
+	<!-- The app declares English and French; iOS picks whichever the device uses. -->
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>fr</string>
+	</array>
+
+	<!--
+		No ATS exceptions: every request this app makes is HTTPS, and the connector
+		refuses a plaintext endpoint outright.
+	-->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+</dict>
+</plist>

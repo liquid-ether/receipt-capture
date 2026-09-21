@@ -1,0 +1,35 @@
+## .NET build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Test results
+[Tt]est[Rr]esult*/
+coverage*.json
+coverage*.xml
+coverage*.info
+*.trx
+
+## Rider / Visual Studio / VS Code
+.vs/
+.idea/
+*.DotSettings.user
+
+## macOS / iOS build artefacts
+.DS_Store
+*.ipa
+*.dSYM/
+*.mobileprovision
+*.p12
+Platforms/iOS/*.entitlements.user
+
+## Local secrets — the API key belongs in the Keychain, never in the repo
+appsettings.Local.json
+*.local.env
+secrets.json
