@@ -232,8 +232,71 @@
   <data name="Settings_Language" xml:space="preserve">
     <value>Langue</value>
   </data>
-  <data name="Settings_KeychainNote" xml:space="preserve">
-    <value>La clé d'API est conservée dans le trousseau iOS, jamais dans la base de données des reçus.</value>
+  <data name="Settings_ApiKeyNote" xml:space="preserve">
+    <value>La clé d'API est définie sur le serveur et n'est jamais transmise à ce navigateur.</value>
+  </data>
+  <data name="Settings_ApiKeyConfigured" xml:space="preserve">
+    <value>Une clé d'API est configurée.</value>
+  </data>
+  <data name="Settings_ApiKeyMissing" xml:space="preserve">
+    <value>Aucune clé d'API n'est configurée. Définissez ReceiptCapture__Accounting__ApiKey sur le serveur.</value>
+  </data>
+  <data name="Settings_HealthEndpoint" xml:space="preserve">
+    <value>URL de test (facultatif)</value>
+  </data>
+  <data name="Camera_Explain" xml:space="preserve">
+    <value>Pour photographier un reçu, cette application a besoin de l'autorisation d'utiliser votre appareil photo. Votre navigateur vous demandera de l'autoriser.</value>
+  </data>
+  <data name="Camera_Enable" xml:space="preserve">
+    <value>Utiliser l'appareil photo</value>
+  </data>
+  <data name="Camera_Capture" xml:space="preserve">
+    <value>Prendre la photo</value>
+  </data>
+  <data name="Camera_Cancel" xml:space="preserve">
+    <value>Fermer l'appareil photo</value>
+  </data>
+  <data name="Camera_PermissionDenied" xml:space="preserve">
+    <value>L'accès à l'appareil photo a été refusé. Autorisez-le dans les réglages de votre navigateur, ou choisissez plutôt une photo.</value>
+  </data>
+  <data name="Camera_Unavailable" xml:space="preserve">
+    <value>Aucun appareil photo n'est disponible sur cet appareil. Vous pouvez plutôt choisir une photo.</value>
+  </data>
+  <data name="Camera_InsecureContext" xml:space="preserve">
+    <value>Les navigateurs n'autorisent l'accès à l'appareil photo qu'en HTTPS. Ouvrez cette application avec une adresse https://.</value>
+  </data>
+  <data name="Capture_ChooseFile" xml:space="preserve">
+    <value>Choisir une photo à la place</value>
+  </data>
+  <data name="Capture_Uploading" xml:space="preserve">
+    <value>Envoi de la photo…</value>
+  </data>
+  <data name="Session_Title" xml:space="preserve">
+    <value>Saisissez le code d'accès</value>
+  </data>
+  <data name="Session_CodeLabel" xml:space="preserve">
+    <value>Code d'accès</value>
+  </data>
+  <data name="Session_Submit" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="Session_Invalid" xml:space="preserve">
+    <value>Ce code n'a pas été accepté.</value>
+  </data>
+  <data name="Session_TooManyAttempts" xml:space="preserve">
+    <value>Trop de tentatives. Patientez quelques minutes avant de réessayer.</value>
+  </data>
+  <data name="Session_SignOut" xml:space="preserve">
+    <value>Se déconnecter</value>
+  </data>
+  <data name="Common_Retry" xml:space="preserve">
+    <value>Réessayer</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="Error_Network" xml:space="preserve">
+    <value>Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.</value>
   </data>
   <data name="Validation_TotalRequired" xml:space="preserve">
     <value>Saisissez le total indiqué sur le reçu.</value>

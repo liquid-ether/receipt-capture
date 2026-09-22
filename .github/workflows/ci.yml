@@ -6,10 +6,8 @@ on:
   pull_request:
 
 jobs:
-  core:
-    # ReceiptCapture.Core and its tests are plain .NET and build anywhere. The iOS
-    # head needs macOS and Xcode, so it is not part of this job — see ios-build.
-    name: Core build and tests
+  build:
+    name: Build and test
     runs-on: ubuntu-latest
 
     steps:
@@ -19,29 +17,41 @@ jobs:
         with:
           global-json-file: global.json
 
+      # OCR runs on the server, so the build machine needs the same engine and
+      # language data the deployed app uses.
+      - name: Install Tesseract
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes \
+            tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra
+
       - name: Restore
-        run: dotnet restore src/ReceiptCapture.Core/ReceiptCapture.Core.csproj tests/ReceiptCapture.Core.Tests/ReceiptCapture.Core.Tests.csproj
+        run: dotnet restore ReceiptCapture.slnx
 
       - name: Build
-        run: dotnet build tests/ReceiptCapture.Core.Tests --configuration Release --no-restore
+        run: dotnet build ReceiptCapture.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test tests/ReceiptCapture.Core.Tests --configuration Release --no-build --logger "trx;LogFileName=core-tests.trx"
+        run: >
+          dotnet test ReceiptCapture.slnx
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=tests.trx"
 
-      - name: Check XAML and localization references
+      - name: Check localization references
         run: python3 tools/check-resources.py
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: core-test-results
+          name: test-results
           path: "**/*.trx"
           if-no-files-found: ignore
 
-  ios-build:
-    name: iOS build
-    runs-on: macos-15
+  browser:
+    name: Camera flow in a browser
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -50,14 +60,34 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Install MAUI workload
-        run: dotnet workload install maui-ios
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-      - name: Build the iPhone app
-        # Simulator build: no signing identity required, so this runs on a fork's PR.
-        run: >
-          dotnet build src/ReceiptCapture.App/ReceiptCapture.App.csproj
-          --configuration Release
-          -f net10.0-ios
-          -p:RuntimeIdentifier=iossimulator-arm64
-          -p:CodesignKey=
+      - name: Install Tesseract
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes \
+            tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra
+
+      - name: Install Playwright
+        working-directory: tests/browser
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: Start the app
+        env:
+          ASPNETCORE_URLS: http://127.0.0.1:5199
+          ReceiptCapture__DataDirectory: ${{ runner.temp }}/receipt-data
+          ReceiptCapture__Accounting__Endpoint: https://books.example.test/api/receipts
+        run: |
+          dotnet run --project src/ReceiptCapture.Web --no-launch-profile &
+          for _ in $(seq 1 30); do
+            curl -sf http://127.0.0.1:5199/api/health && break
+            sleep 2
+          done
+
+      - name: Run the camera flow
+        working-directory: tests/browser
+        run: node camera-flow.mjs http://127.0.0.1:5199

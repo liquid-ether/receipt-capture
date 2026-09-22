@@ -13,7 +13,10 @@ public sealed class GenericRestConnectorOptions
     /// <summary>Optional GET endpoint used by "Test connection". Falls back to <see cref="Endpoint"/>.</summary>
     public Uri? HealthEndpoint { get; set; }
 
-    /// <summary>Secret for the accounting system. Stored in the iOS Keychain, never in the database.</summary>
+    /// <summary>
+    /// Secret for the accounting system. Supplied by the host from its own
+    /// configuration; it is never written to the receipt database.
+    /// </summary>
     public string? ApiKey { get; set; }
 
     /// <summary>Header carrying <see cref="ApiKey"/>. Some systems want "Authorization" instead.</summary>

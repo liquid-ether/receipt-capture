@@ -33,7 +33,7 @@ public sealed class ReceiptSubmissionDto
     public required string CapturedAt { get; init; }
 
     /// <summary>Lets the accounting system tell this app's submissions apart from others.</summary>
-    public string Source { get; init; } = "receipt-capture-ios";
+    public string Source { get; init; } = "receipt-capture-web";
 
     public static ReceiptSubmissionDto FromReceipt(Receipt receipt) => new()
     {
@@ -62,9 +62,9 @@ public sealed class TaxDto
 }
 
 /// <summary>
-/// Source-generated serialization. iOS builds run the ILLink trimmer and, for
-/// release, Native AOT; reflection-based System.Text.Json breaks under both, so the
-/// contract is generated at compile time instead.
+/// Source-generated serialization, so the contract survives trimming and ahead-of-time
+/// compilation without reflection. That keeps this library usable from a published,
+/// trimmed host as well as an ordinary one.
 /// </summary>
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,

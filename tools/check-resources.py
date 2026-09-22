@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Checks the things the compiler cannot.
 
-The iOS head only builds on a Mac, and XAML resource lookups fail at runtime
-rather than at build time. This script runs anywhere and catches the common
-breakages: malformed XAML, a {loc:Translate Key} with no matching resource, a
-{StaticResource Name} that was never defined, and a parser warning with no
-translation.
+The front end looks strings up by key at runtime, so a typo in a `data-i18n`
+attribute or a `t('...')` call is invisible until someone opens that screen and
+sees a blank label. This script runs anywhere and catches it, along with keys that
+exist in one language but not the other.
 
     python3 tools/check-resources.py
 """
@@ -18,7 +17,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APP = os.path.join(ROOT, 'src', 'ReceiptCapture.App')
+WEB = os.path.join(ROOT, 'src', 'ReceiptCapture.Web')
 CORE = os.path.join(ROOT, 'src', 'ReceiptCapture.Core')
 RESX = os.path.join(CORE, 'Resources', 'Strings', 'AppResources.resx')
 RESX_FR = os.path.join(CORE, 'Resources', 'Strings', 'AppResources.fr.resx')
@@ -34,13 +33,6 @@ def resx_keys(path):
 
 def main():
     failures = []
-    xamls = sorted(glob.glob(os.path.join(APP, '**', '*.xaml'), recursive=True))
-
-    for path in xamls:
-        try:
-            ET.parse(path)
-        except ET.ParseError as error:
-            failures.append('%s: malformed XAML: %s' % (path, error))
 
     english = resx_keys(RESX)
     french = resx_keys(RESX_FR)
@@ -53,27 +45,29 @@ def main():
         failures.append('French keys with no English original: %s' % only_french)
 
     used = set()
-    for path in xamls:
-        used |= set(re.findall(r'\{loc:Translate\s+([A-Za-z0-9_]+)\s*\}', read(path)))
-    for path in (glob.glob(os.path.join(APP, '**', '*.cs'), recursive=True)
+
+    # data-i18n="Key" in the markup
+    for path in glob.glob(os.path.join(WEB, 'wwwroot', '**', '*.html'), recursive=True):
+        used |= set(re.findall(r'data-i18n="([A-Za-z0-9_]+)"', read(path)))
+
+    # t('Key') and t("Key") in the front-end script
+    for path in glob.glob(os.path.join(WEB, 'wwwroot', '**', '*.js'), recursive=True):
+        body = read(path)
+        used |= set(re.findall(r"\bt\(\s*'([A-Za-z0-9_]+)'", body))
+        used |= set(re.findall(r'\bt\(\s*"([A-Za-z0-9_]+)"', body))
+
+    # AppStrings.Get("Key") / AppStrings.Format("Key", ...) on the server
+    for path in (glob.glob(os.path.join(WEB, '**', '*.cs'), recursive=True)
                  + glob.glob(os.path.join(CORE, '**', '*.cs'), recursive=True)):
+        if os.sep + 'obj' + os.sep in path or os.sep + 'bin' + os.sep in path:
+            continue
         used |= set(re.findall(r'AppStrings\.(?:Get|Format)\("([A-Za-z0-9_]+)"', read(path)))
 
     missing = sorted(used - english)
     if missing:
         failures.append('resource keys referenced but not defined: %s' % missing)
 
-    defined = set()
-    referenced = set()
-    for path in xamls:
-        body = read(path)
-        defined |= set(re.findall(r'x:Key="([^"]+)"', body))
-        referenced |= set(re.findall(r'\{StaticResource\s+([A-Za-z0-9_]+)\s*\}', body))
-
-    undefined = sorted(referenced - defined)
-    if undefined:
-        failures.append('StaticResource used but never defined: %s' % undefined)
-
+    # Parser warnings reach the user as text, so every one needs a translation.
     warnings = set(re.findall(
         r'"(Warning_[A-Za-z]+)"',
         read(os.path.join(CORE, 'Parsing', 'ParseWarnings.cs'))))
@@ -81,8 +75,14 @@ def main():
     if missing_warnings:
         failures.append('parser warnings with no resource: %s' % missing_warnings)
 
-    print('%d XAML files, %d resource keys, %d StaticResource references checked.'
-          % (len(xamls), len(used), len(referenced)))
+    # Every element the script hides must use the `hidden` attribute, which the
+    # stylesheet forces to win; a stray style="display:none" would not survive
+    # being shown again.
+    css = read(os.path.join(WEB, 'wwwroot', 'styles.css'))
+    if '[hidden]' not in css:
+        failures.append('styles.css must keep the [hidden] override, or hidden views render on top of each other')
+
+    print('%d resource keys referenced, %d defined in each language.' % (len(used), len(english)))
 
     if failures:
         print('\nFAILURES:')
@@ -90,7 +90,7 @@ def main():
             print('  - ' + failure)
         return 1
 
-    print('All XAML and resource references check out.')
+    print('All resource references check out.')
     return 0
 
 

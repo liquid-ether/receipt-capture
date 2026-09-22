@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Receipt Capture</title>
+  <meta name="description" content="Photograph a receipt and send it to your accounting system." />
+  <meta name="theme-color" content="#1F6F54" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Receipts" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+<!-- Shown only when the deployment is protected by a shared access code. -->
+<div id="gate" class="gate" hidden>
+  <form id="gate-form" class="gate__card" autocomplete="off">
+    <h1 data-i18n="Session_Title">Enter the access code</h1>
+    <label for="gate-code" data-i18n="Session_CodeLabel">Access code</label>
+    <input id="gate-code" type="password" inputmode="text" autocomplete="one-time-code" required />
+    <p id="gate-error" class="message message--error" role="alert" hidden></p>
+    <button type="submit" class="button" data-i18n="Session_Submit">Continue</button>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <header class="header">
+    <h1 class="header__title" data-i18n="App_Title">Receipt Capture</h1>
+    <div class="header__actions">
+      <label class="visually-hidden" for="language" data-i18n="Settings_Language">Language</label>
+      <select id="language" class="header__language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <!-- ------------------------------------------------------------- Capture -->
+    <section id="view-capture" class="view">
+      <h2 data-i18n="Capture_Title">Capture a receipt</h2>
+      <p id="pending-summary" class="caption"></p>
+
+      <div id="camera-intro" class="card">
+        <p data-i18n="Camera_Explain">
+          To photograph a receipt, this app needs permission to use your camera.
+        </p>
+        <button id="camera-enable" type="button" class="button" data-i18n="Camera_Enable">
+          Use the camera
+        </button>
+      </div>
+
+      <div id="camera-live" class="card" hidden>
+        <!-- muted + playsinline are what let iOS Safari show the stream inline. -->
+        <video id="camera-preview" class="camera__preview" playsinline muted autoplay></video>
+        <button id="camera-capture" type="button" class="button" data-i18n="Camera_Capture">
+          Take the photo
+        </button>
+        <button id="camera-cancel" type="button" class="button button--secondary" data-i18n="Camera_Cancel">
+          Close the camera
+        </button>
+      </div>
+
+      <p id="camera-message" class="message message--error" role="alert" hidden></p>
+
+      <!-- Always available: a camera that cannot be opened must never be a dead end. -->
+      <div class="card">
+        <label for="photo-file" class="button button--secondary button--file" data-i18n="Capture_ChooseFile">
+          Choose a photo instead
+        </label>
+        <input id="photo-file" type="file" accept="image/*" capture="environment" class="visually-hidden" />
+      </div>
+
+      <div id="capture-busy" class="busy" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="capture-busy-text" data-i18n="Capture_Uploading">Sending the photo…</span>
+      </div>
+    </section>
+
+    <!-- -------------------------------------------------------------- Review -->
+    <section id="view-review" class="view" hidden>
+      <h2 data-i18n="Review_Title">Check the details</h2>
+
+      <div id="review-warnings" class="card card--warning" hidden></div>
+      <p id="review-ocr-error" class="message message--error" role="alert" hidden></p>
+
+      <img id="review-image" class="receipt-image" alt="" hidden />
+
+      <form id="review-form" autocomplete="off">
+        <label for="review-merchant" data-i18n="Review_Merchant">Merchant</label>
+        <input id="review-merchant" type="text" />
+
+        <label for="review-date" data-i18n="Review_Date">Date</label>
+        <input id="review-date" type="date" />
+
+        <div class="row">
+          <div>
+            <label for="review-subtotal" data-i18n="Review_Subtotal">Subtotal</label>
+            <input id="review-subtotal" type="text" inputmode="decimal" />
+          </div>
+          <div>
+            <label for="review-tip" data-i18n="Review_Tip">Tip</label>
+            <input id="review-tip" type="text" inputmode="decimal" />
+          </div>
+        </div>
+
+        <h3 data-i18n="Review_Taxes">Taxes</h3>
+        <div id="review-taxes"></div>
+        <button id="review-add-tax" type="button" class="button button--secondary" data-i18n="Review_AddTax">
+          Add a tax line
+        </button>
+
+        <label for="review-total" data-i18n="Review_Total">Total</label>
+        <input id="review-total" type="text" inputmode="decimal" class="input--total" required />
+
+        <label for="review-currency" data-i18n="Review_Currency">Currency</label>
+        <input id="review-currency" type="text" maxlength="3" />
+
+        <label for="review-category" data-i18n="Review_Category">Category</label>
+        <select id="review-category"></select>
+
+        <label for="review-notes" data-i18n="Review_Notes">Notes</label>
+        <textarea id="review-notes" rows="3"></textarea>
+
+        <p id="review-error" class="message message--error" role="alert" hidden></p>
+
+        <button type="submit" class="button" data-i18n="Review_Send">Send to accounting</button>
+        <button id="review-discard" type="button" class="button button--danger" data-i18n="Review_Discard">
+          Discard
+        </button>
+      </form>
+    </section>
+
+    <!-- ------------------------------------------------------------- History -->
+    <section id="view-history" class="view" hidden>
+      <h2 data-i18n="History_Title">History</h2>
+
+      <button id="history-sync" type="button" class="button" data-i18n="History_SyncNow">
+        Send pending receipts
+      </button>
+
+      <p id="history-message" class="caption" role="status" hidden></p>
+      <p id="history-empty" class="caption" data-i18n="History_Empty" hidden>No receipts yet.</p>
+
+      <ul id="history-list" class="list"></ul>
+    </section>
+
+    <!-- ------------------------------------------------------------ Settings -->
+    <section id="view-settings" class="view" hidden>
+      <h2 data-i18n="Settings_Title">Settings</h2>
+
+      <form id="settings-form" autocomplete="off">
+        <h3 data-i18n="Settings_AccountingSection">Accounting system</h3>
+
+        <label for="settings-endpoint" data-i18n="Settings_Endpoint">Endpoint URL</label>
+        <input id="settings-endpoint" type="url" inputmode="url"
+               placeholder="https://books.example.com/api/receipts" />
+
+        <label for="settings-health" data-i18n="Settings_HealthEndpoint">Test URL (optional)</label>
+        <input id="settings-health" type="url" inputmode="url" />
+
+        <label for="settings-header" data-i18n="Settings_ApiKeyHeader">API key header</label>
+        <input id="settings-header" type="text" />
+
+        <p class="caption" data-i18n="Settings_ApiKeyNote">
+          The API key is set on the server and is never sent to this browser.
+        </p>
+        <p id="settings-key-status" class="caption"></p>
+
+        <label class="checkbox">
+          <input id="settings-include-image" type="checkbox" />
+          <span data-i18n="Settings_IncludeImage">Send the receipt photo</span>
+        </label>
+
+        <p id="settings-message" class="message" role="status" hidden></p>
+
+        <button id="settings-test" type="button" class="button button--secondary"
+                data-i18n="Settings_TestConnection">Test connection</button>
+        <button type="submit" class="button" data-i18n="Settings_Save">Save</button>
+      </form>
+
+      <button id="sign-out" type="button" class="button button--secondary" data-i18n="Session_SignOut" hidden>
+        Sign out
+      </button>
+    </section>
+  </main>
+
+  <nav class="tabs" aria-label="Sections">
+    <button type="button" class="tab" data-view="capture" data-i18n="Tab_Capture">Capture</button>
+    <button type="button" class="tab" data-view="history" data-i18n="Tab_History">History</button>
+    <button type="button" class="tab" data-view="settings" data-i18n="Tab_Settings">Settings</button>
+  </nav>
+</div>
+
+<script src="/app.js" type="module"></script>
+</body>
+</html>

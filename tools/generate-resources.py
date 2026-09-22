@@ -94,8 +94,54 @@ STRINGS = [
     ("Settings_Save", "Save", "Enregistrer", None),
     ("Settings_Saved", "Settings saved.", "Réglages enregistrés.", None),
     ("Settings_Language", "Language", "Langue", None),
-    ("Settings_KeychainNote", "The API key is stored in the iOS Keychain, never in the receipt database.",
-     "La clé d'API est conservée dans le trousseau iOS, jamais dans la base de données des reçus.", None),
+    ("Settings_ApiKeyNote",
+     "The API key is set on the server and is never sent to this browser.",
+     "La clé d'API est définie sur le serveur et n'est jamais transmise à ce navigateur.", None),
+    ("Settings_ApiKeyConfigured", "An API key is configured.", "Une clé d'API est configurée.", None),
+    ("Settings_ApiKeyMissing",
+     "No API key is configured. Set ReceiptCapture__Accounting__ApiKey on the server.",
+     "Aucune clé d'API n'est configurée. Définissez ReceiptCapture__Accounting__ApiKey sur le serveur.", None),
+    ("Settings_HealthEndpoint", "Test URL (optional)", "URL de test (facultatif)", None),
+
+    # --- camera -------------------------------------------------------------
+    ("Camera_Explain",
+     "To photograph a receipt, this app needs permission to use your camera. "
+     "Your browser will ask you to allow it.",
+     "Pour photographier un reçu, cette application a besoin de l'autorisation d'utiliser votre appareil photo. "
+     "Votre navigateur vous demandera de l'autoriser.", None),
+    ("Camera_Enable", "Use the camera", "Utiliser l'appareil photo", None),
+    ("Camera_Capture", "Take the photo", "Prendre la photo", None),
+    ("Camera_Cancel", "Close the camera", "Fermer l'appareil photo", None),
+    ("Camera_PermissionDenied",
+     "Camera access was refused. Allow it in your browser settings, or choose a photo instead.",
+     "L'accès à l'appareil photo a été refusé. Autorisez-le dans les réglages de votre navigateur, "
+     "ou choisissez plutôt une photo.", None),
+    ("Camera_Unavailable",
+     "No camera is available on this device. You can choose a photo instead.",
+     "Aucun appareil photo n'est disponible sur cet appareil. Vous pouvez plutôt choisir une photo.", None),
+    ("Camera_InsecureContext",
+     "Browsers only allow camera access over HTTPS. Open this app with an https:// address.",
+     "Les navigateurs n'autorisent l'accès à l'appareil photo qu'en HTTPS. "
+     "Ouvrez cette application avec une adresse https://.", None),
+    ("Capture_ChooseFile", "Choose a photo instead", "Choisir une photo à la place", None),
+    ("Capture_Uploading", "Sending the photo…", "Envoi de la photo…", None),
+
+    # --- access gate --------------------------------------------------------
+    ("Session_Title", "Enter the access code", "Saisissez le code d'accès", None),
+    ("Session_CodeLabel", "Access code", "Code d'accès", None),
+    ("Session_Submit", "Continue", "Continuer", None),
+    ("Session_Invalid", "That code was not accepted.", "Ce code n'a pas été accepté.", None),
+    ("Session_TooManyAttempts",
+     "Too many attempts. Wait a few minutes and try again.",
+     "Trop de tentatives. Patientez quelques minutes avant de réessayer.", None),
+    ("Session_SignOut", "Sign out", "Se déconnecter", None),
+
+    # --- misc web -----------------------------------------------------------
+    ("Common_Retry", "Retry", "Réessayer", None),
+    ("Common_Close", "Close", "Fermer", None),
+    ("Error_Network",
+     "Could not reach the server. Check your connection and try again.",
+     "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.", None),
 
     # --- validation ---------------------------------------------------------
     ("Validation_TotalRequired", "Enter the total shown on the receipt.",

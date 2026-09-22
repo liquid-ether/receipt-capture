@@ -1,10 +1,13 @@
 namespace ReceiptCapture.Core.Services;
 
 /// <summary>
-/// Reads the text off a receipt photo. Implemented per platform — on iPhone by
-/// Apple's Vision framework, which runs entirely on device so the photo of a
-/// receipt never leaves the phone before the user has reviewed it.
+/// Reads the text off a receipt photo.
 /// </summary>
+/// <remarks>
+/// An interface rather than a concrete class because the engine is a deployment
+/// decision, not a domain one: the web app shells out to Tesseract on the server,
+/// and a native client would use whatever its platform provides instead.
+/// </remarks>
 public interface IOcrService
 {
     /// <summary>

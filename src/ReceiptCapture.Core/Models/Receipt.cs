@@ -31,7 +31,7 @@ public sealed class Receipt
 
     public string? Notes { get; set; }
 
-    /// <summary>Absolute path to the receipt photo inside the app sandbox.</summary>
+    /// <summary>Absolute path to the receipt photo in the image store.</summary>
     public string? ImagePath { get; set; }
 
     public ReceiptStatus Status { get; set; } = ReceiptStatus.Draft;

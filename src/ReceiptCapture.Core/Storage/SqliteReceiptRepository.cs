@@ -10,8 +10,8 @@ namespace ReceiptCapture.Core.Storage;
 /// <remarks>
 /// The host application must initialise a SQLitePCLRaw provider — normally
 /// <c>SQLitePCL.Batteries_V2.Init()</c> — once at startup before any call here.
-/// Core deliberately does not pick one: the iOS head binds to the system SQLite
-/// that Apple patches, while tests bind to a bundled build.
+/// Core deliberately does not pick one, so a host can bind to the SQLite its
+/// operating system already patches rather than shipping a copy of its own.
 /// </remarks>
 public sealed class SqliteReceiptRepository : IReceiptRepository, IAsyncDisposable
 {

@@ -3,8 +3,7 @@ using ReceiptCapture.Core.Services;
 namespace ReceiptCapture.Core.Storage;
 
 /// <summary>
-/// Stores receipt photos as files under a root directory — on iOS, a folder inside
-/// the app sandbox that only this app can read.
+/// Stores receipt photos as files under a root directory that only this app reads.
 /// </summary>
 public sealed class FileSystemImageStore : IReceiptImageStore
 {
@@ -87,13 +86,14 @@ public sealed class FileSystemImageStore : IReceiptImageStore
 
         var extension = fileExtension.StartsWith('.') ? fileExtension : "." + fileExtension;
 
-        // The extension reaches here from a picker; keep it to a known-safe set so it
+        // The extension reaches here from an upload; keep it to a known-safe set so it
         // cannot introduce path separators or traversal segments into the file name.
         return extension.ToLowerInvariant() switch
         {
             ".jpg" or ".jpeg" => ".jpg",
             ".png" => ".png",
             ".heic" => ".heic",
+            ".webp" => ".webp",
             ".pdf" => ".pdf",
             _ => ".jpg",
         };

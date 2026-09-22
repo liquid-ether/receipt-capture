@@ -8,10 +8,10 @@
   <ItemGroup>
     <!--
       sqlite-net-base is sqlite-net without a bundled native SQLite, so each host
-      picks its own provider. The iOS head binds to the system SQLite that Apple
-      ships and patches (SQLitePCLRaw.bundle_sqlite3); the bundled e_sqlite3 builds
-      carry an unfixed high-severity advisory (GHSA-2m69-gcr7-jv3q) and are kept out
-      of the shipping app entirely.
+      picks its own provider. The web app binds to the system SQLite its OS ships
+      and patches (SQLitePCLRaw.bundle_sqlite3); the bundled e_sqlite3 builds carry
+      an unfixed high-severity advisory (GHSA-2m69-gcr7-jv3q) and are kept out of
+      the deployed app entirely.
       Whichever provider a host chooses, it must call SQLitePCL.Batteries_V2.Init()
       once at startup before any repository call.
     -->

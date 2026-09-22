@@ -1,5 +1,0 @@
-/* Shown by iOS when the app first asks for the camera. */
-"NSCameraUsageDescription" = "Receipt Capture uses the camera to photograph your receipts.";
-
-/* Shown by iOS when the app first asks for the photo library. */
-"NSPhotoLibraryUsageDescription" = "Receipt Capture lets you pick a receipt photo you already took.";

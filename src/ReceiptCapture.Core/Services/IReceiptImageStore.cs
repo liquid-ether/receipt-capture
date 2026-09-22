@@ -1,9 +1,9 @@
 namespace ReceiptCapture.Core.Services;
 
 /// <summary>
-/// Holds receipt photos outside the database, in the app sandbox. Images are far
-/// too large for SQLite rows, and keeping them as files lets iOS exclude them from
-/// backups or purge them independently of the metadata.
+/// Holds receipt photos outside the database. Images are far too large for SQLite
+/// rows, and keeping them as files means they can be backed up, mounted on a
+/// separate volume or purged independently of the metadata.
 /// </summary>
 public interface IReceiptImageStore
 {

@@ -1,0 +1,12 @@
+{
+  "name": "receipt-capture-browser-tests",
+  "private": true,
+  "type": "module",
+  "description": "Browser tests for the camera capture flow, which cannot be exercised from .NET.",
+  "scripts": {
+    "test": "node camera-flow.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

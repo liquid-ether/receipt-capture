@@ -7,7 +7,6 @@ artifacts/
 *.user
 *.suo
 *.userosscache
-*.sln.docstates
 
 ## Test results
 [Tt]est[Rr]esult*/
@@ -21,15 +20,17 @@ coverage*.info
 .idea/
 *.DotSettings.user
 
-## macOS / iOS build artefacts
+## macOS
 .DS_Store
-*.ipa
-*.dSYM/
-*.mobileprovision
-*.p12
-Platforms/iOS/*.entitlements.user
 
-## Local secrets — the API key belongs in the Keychain, never in the repo
+## Web app runtime data: receipts, photos and the data-protection key ring
+App_Data/
+
+## Browser test dependencies
+tests/browser/node_modules/
+
+## Local secrets — the accounting API key belongs in the environment, never in the repo
 appsettings.Local.json
+appsettings.*.Local.json
 *.local.env
 secrets.json

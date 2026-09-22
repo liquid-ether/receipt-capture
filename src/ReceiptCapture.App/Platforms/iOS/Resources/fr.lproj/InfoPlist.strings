@@ -1,5 +1,0 @@
-/* Affiché par iOS lors de la première demande d'accès à l'appareil photo. */
-"NSCameraUsageDescription" = "Capture de reçus utilise l'appareil photo pour photographier vos reçus.";
-
-/* Affiché par iOS lors de la première demande d'accès à la photothèque. */
-"NSPhotoLibraryUsageDescription" = "Capture de reçus vous permet de choisir une photo de reçu déjà prise.";

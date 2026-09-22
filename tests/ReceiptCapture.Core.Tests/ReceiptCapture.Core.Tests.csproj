@@ -13,9 +13,10 @@
     <!--
       The test host needs a native SQLite. This bundled build carries an unfixed
       advisory (GHSA-2m69-gcr7-jv3q) and is therefore a test-only dependency: it is
-      never referenced by ReceiptCapture.Core or by the iOS app, which uses the
-      system SQLite Apple maintains. bundle_green works the same on a developer's
-      Windows, macOS or Linux machine, which the system-SQLite provider does not.
+      never referenced by ReceiptCapture.Core or by the deployed web app, which uses
+      the SQLite its operating system maintains. bundle_green is used here because
+      it works identically on a developer's Windows, macOS or Linux machine, which
+      the system-SQLite provider does not.
     -->
     <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
   </ItemGroup>

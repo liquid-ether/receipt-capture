@@ -1,0 +1,219 @@
+/* Mobile-first: this is used one-handed, standing next to a till. */
+
+:root {
+  --primary: #1F6F54;
+  --primary-dark: #14523E;
+  --danger: #B3261E;
+  --warning: #8A6100;
+  --page: #ffffff;
+  --card: #F4F6F5;
+  --text: #1A1C1B;
+  --text-muted: #4A4E4C;
+  --border: #DCE0DE;
+  --radius: 12px;
+  --gap: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #121212;
+    --card: #1E1F1E;
+    --text: #E6E1E5;
+    --text-muted: #B0B4B2;
+    --border: #333735;
+  }
+}
+
+* { box-sizing: border-box; }
+
+/*
+ * The `hidden` attribute only sets `display: none` at the very bottom of the
+ * cascade, so any rule here that sets `display` would otherwise defeat it — and
+ * several do (.view, .card, .gate are all flex). Everything the script hides uses
+ * the attribute, so make it win outright.
+ */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--page);
+  color: var(--text);
+  font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Keeps content clear of the iPhone home indicator and notch. */
+  padding-bottom: calc(64px + env(safe-area-inset-bottom));
+}
+
+h1, h2, h3 { line-height: 1.25; }
+h2 { font-size: 1.4rem; margin: 0 0 4px; }
+h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin: 20px 0 4px; }
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+  background: var(--primary);
+  color: #fff;
+}
+.header__title { font-size: 1.05rem; margin: 0; font-weight: 600; }
+.header__language {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  min-height: 36px;
+}
+.header__language option { color: #000; }
+
+main { padding: 16px; }
+.view { display: flex; flex-direction: column; gap: var(--gap); }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.card--warning { border-color: var(--warning); }
+.card--warning p { color: var(--warning); margin: 0; font-size: 0.9rem; }
+
+label { font-size: 0.85rem; color: var(--text-muted); display: block; margin-top: 8px; }
+.checkbox { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 1rem; color: var(--text); }
+.checkbox input { width: 22px; height: 22px; }
+
+input, select, textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  font-size: 16px; /* anything smaller makes iOS Safari zoom on focus */
+  color: var(--text);
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+textarea { min-height: 80px; }
+.input--total { font-size: 22px; font-weight: 600; min-height: 56px; }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px; /* comfortably over the 44pt touch target */
+  margin-top: 10px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.button:active { background: var(--primary-dark); }
+.button:disabled { opacity: 0.5; cursor: default; }
+.button--secondary { background: transparent; color: var(--primary); }
+.button--danger { background: transparent; color: var(--danger); border-color: transparent; }
+.button--file { margin: 0; }
+
+.camera__preview {
+  width: 100%;
+  max-height: 60vh;
+  background: #000;
+  border-radius: 10px;
+  object-fit: contain;
+}
+
+.receipt-image {
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.message { margin: 6px 0 0; font-size: 0.9rem; color: var(--text-muted); }
+.message--error { color: var(--danger); }
+.caption { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+
+.busy { display: flex; align-items: center; gap: 10px; color: var(--text-muted); }
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.list__item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+.list__row { display: flex; justify-content: space-between; gap: 10px; }
+.list__merchant { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list__error { color: var(--danger); font-size: 0.85rem; margin: 6px 0 0; }
+.list__actions { display: flex; gap: 10px; }
+.list__actions .button { margin-top: 8px; }
+
+.tax-row { display: grid; grid-template-columns: 90px 1fr 44px; gap: 8px; align-items: end; margin-top: 8px; }
+.tax-row .button { margin: 0; min-height: 46px; }
+
+.tabs {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--page);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab {
+  background: none;
+  border: none;
+  padding: 12px 4px;
+  min-height: 56px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.tab[aria-current="page"] { color: var(--primary); font-weight: 600; }
+
+.gate {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--page);
+  z-index: 10;
+}
+.gate__card { width: 100%; max-width: 360px; }
+.gate__card h1 { font-size: 1.25rem; margin: 0 0 12px; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+label.visually-hidden { margin: -1px; }
+
+:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
