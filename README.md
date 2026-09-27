@@ -147,6 +147,12 @@ register it in `Program.cs`. Nothing above that interface changes.
   the uploaded name.
 - Put the app behind HTTPS in any real deployment. The camera requires it anyway.
 
+On Linux, startup logs `No XML encryptor configured. Key ... may be persisted to
+storage in unencrypted form.` That is expected: there is no OS key store to wrap it
+with, and the key only signs the access cookie. Keep the data directory's file
+permissions tight and it is fine; anyone who can read that directory can already
+read the receipts.
+
 ## Testing
 
 ```powershell

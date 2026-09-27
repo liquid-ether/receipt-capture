@@ -114,10 +114,25 @@ try {
   await page.click('#view-review button[type="submit"]');
   await page.waitForSelector('#view-history:not([hidden])', { timeout: 15000 });
 
-  const historyText = await page.textContent('#history-list');
-  check('the confirmed receipt appears in history', historyText?.includes('BROWSER TEST CAFE'),
-    historyText?.trim().slice(0, 80));
-  check('a comma decimal was accepted', historyText?.includes('12'), historyText?.trim().slice(0, 40));
+  // The history view appears before the list it shows: navigating kicks off a fetch
+  // and renders when it answers. Poll for the row rather than reading once, or this
+  // races the network on a slow machine.
+  let historyText = '';
+  try {
+    await page.waitForFunction(
+      () => document.getElementById('history-list')?.textContent?.includes('BROWSER TEST CAFE'),
+      null,
+      { timeout: 15000 },
+    );
+    historyText = (await page.textContent('#history-list')) ?? '';
+  } catch {
+    historyText = (await page.textContent('#history-list')) ?? '';
+  }
+
+  check('the confirmed receipt appears in history', historyText.includes('BROWSER TEST CAFE'),
+    historyText.trim().slice(0, 80));
+  check('a comma decimal was accepted as 12.66', historyText.includes('12.66'),
+    historyText.trim().slice(0, 60));
 
   // --- French ----------------------------------------------------------------
   await page.selectOption('#language', 'fr');
