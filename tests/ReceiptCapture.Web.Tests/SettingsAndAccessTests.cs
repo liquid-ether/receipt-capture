@@ -126,10 +126,30 @@ public class AccessGateTests
 
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/receipts")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/settings")).StatusCode);
-        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/bootstrap")).StatusCode);
 
         // The front end itself stays reachable so it can render the prompt.
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/")).StatusCode);
+    }
+
+    [Fact]
+    public async Task The_string_table_is_readable_before_admission_and_carries_nothing_else()
+    {
+        using var factory = new WebAppFactory { AccessCode = Code, ApiKey = "never-leak-this" };
+        using var client = factory.CreateClient();
+
+        // The gate needs the strings to speak French and to explain a refused code.
+        var response = await client.GetAsync("/api/bootstrap?lang=fr");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadAsStringAsync();
+        using var document = JsonDocument.Parse(body);
+
+        Assert.Equal(
+            ["categories", "language", "strings"],
+            document.RootElement.EnumerateObject().Select(p => p.Name).Order().ToArray());
+        Assert.Equal("Ce code n'a pas été accepté.",
+            document.RootElement.GetProperty("strings").GetProperty("Session_Invalid").GetString());
+        Assert.DoesNotContain("never-leak-this", body, StringComparison.Ordinal);
     }
 
     [Fact]

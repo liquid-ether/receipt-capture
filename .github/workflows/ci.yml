@@ -49,6 +49,29 @@ jobs:
           path: "**/*.trx"
           if-no-files-found: ignore
 
+  material:
+    name: Material assets are current
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The Material components, colour scheme, fonts and icon sprite in wwwroot are
+      # generated and committed so the app runs without Node. Rebuild them from
+      # tools/material and fail if the committed copy has drifted from its source.
+      - name: Rebuild
+        working-directory: tools/material
+        run: |
+          npm ci
+          npm run build
+
+      - name: Compare with the committed copy
+        run: git diff --exit-code -- src/ReceiptCapture.Web/wwwroot
+
   browser:
     name: Camera flow in a browser
     runs-on: ubuntu-latest
@@ -76,18 +99,35 @@ jobs:
           npm install
           npx playwright install --with-deps chromium
 
+      - name: Build the app
+        run: dotnet build src/ReceiptCapture.Web --configuration Release
+
+      # Two instances: an open one for the camera flow, and one protected by an
+      # access code for the gate test.
       - name: Start the app
         env:
-          ASPNETCORE_URLS: http://127.0.0.1:5199
-          ReceiptCapture__DataDirectory: ${{ runner.temp }}/receipt-data
           ReceiptCapture__Accounting__Endpoint: https://books.example.test/api/receipts
         run: |
-          dotnet run --project src/ReceiptCapture.Web --no-launch-profile &
-          for _ in $(seq 1 30); do
-            curl -sf http://127.0.0.1:5199/api/health && break
-            sleep 2
+          ASPNETCORE_URLS=http://127.0.0.1:5199 \
+          ReceiptCapture__DataDirectory=${{ runner.temp }}/receipt-data-open \
+            dotnet run --project src/ReceiptCapture.Web --configuration Release --no-build --no-launch-profile &
+
+          ASPNETCORE_URLS=http://127.0.0.1:5202 \
+          ReceiptCapture__DataDirectory=${{ runner.temp }}/receipt-data-gated \
+          ReceiptCapture__AccessCode=ci-access-code \
+            dotnet run --project src/ReceiptCapture.Web --configuration Release --no-build --no-launch-profile &
+
+          for port in 5199 5202; do
+            for _ in $(seq 1 30); do
+              curl -sf http://127.0.0.1:$port/api/health && break
+              sleep 2
+            done
           done
 
       - name: Run the camera flow
         working-directory: tests/browser
         run: node camera-flow.mjs http://127.0.0.1:5199
+
+      - name: Run the access-code screen
+        working-directory: tests/browser
+        run: node access-gate.mjs http://127.0.0.1:5202 ci-access-code

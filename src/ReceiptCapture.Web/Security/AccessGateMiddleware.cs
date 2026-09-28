@@ -10,8 +10,14 @@ namespace ReceiptCapture.Web.Security;
 /// </remarks>
 public sealed class AccessGateMiddleware
 {
-    /// <summary>Endpoints reachable before admission: the sign-in call and its status.</summary>
-    private static readonly string[] OpenPaths = ["/api/session", "/api/session/status", "/api/health"];
+    /// <summary>
+    /// Endpoints reachable before admission: the sign-in call and its status, the
+    /// health probe, and the string table. The last holds only interface labels and
+    /// category names — no receipts, no settings — and the gate needs it to speak the
+    /// visitor's language and to explain a refused code at all.
+    /// </summary>
+    private static readonly string[] OpenPaths =
+        ["/api/session", "/api/session/status", "/api/health", "/api/bootstrap"];
 
     private readonly RequestDelegate _next;
 

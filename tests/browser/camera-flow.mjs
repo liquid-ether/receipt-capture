@@ -7,11 +7,29 @@
 // capture, upload, OCR, review form — runs for real.
 //
 //   node camera-flow.mjs [baseUrl]
+//
+// Set SCREENSHOT_DIR to also save a screenshot of each screen along the way.
+//
+// Form controls are Material Web components, whose native <input> lives in a
+// shadow root. Playwright's CSS selectors pierce open shadow roots, so
+// "#review-total input" reaches the real field.
 
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { chromium, devices } from 'playwright';
 
 const baseUrl = process.argv[2] ?? 'http://127.0.0.1:5199';
+const screenshotDir = process.env.SCREENSHOT_DIR;
 const results = [];
+
+if (screenshotDir) mkdirSync(screenshotDir, { recursive: true });
+
+async function snapshot(page, name) {
+  if (!screenshotDir) return;
+  // Let entrance animations settle so the picture shows the resting state.
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: join(screenshotDir, `${name}.png`) });
+}
 
 function check(name, condition, detail = '') {
   results.push({ name, ok: Boolean(condition), detail });
@@ -56,6 +74,28 @@ try {
   const captureHeading = await page.textContent('#view-capture h2');
   check('capture view is localized', captureHeading?.includes('Capture a receipt'), captureHeading);
 
+  // --- Material Design assets load and apply ---------------------------------
+  const material = await page.evaluate(async () => {
+    await document.fonts.ready;
+    const style = getComputedStyle(document.documentElement);
+    return {
+      components: ['md-filled-button', 'md-outlined-text-field', 'md-outlined-select', 'md-switch', 'md-dialog']
+        .every((tag) => Boolean(customElements.get(tag))),
+      primary: style.getPropertyValue('--md-sys-color-primary').trim(),
+      roboto: document.fonts.check('16px Roboto'),
+      navIndicator: getComputedStyle(
+        document.querySelector('.navigation-bar__item[aria-current="page"] .navigation-bar__indicator'),
+      ).backgroundColor,
+    };
+  });
+  check('Material Web components are registered', material.components);
+  check('the M3 colour scheme is applied', /^#[0-9a-f]{6}$/i.test(material.primary), material.primary);
+  check('Roboto is loaded from this server', material.roboto);
+  check('the selected destination shows the M3 active indicator',
+    material.navIndicator && material.navIndicator !== 'rgba(0, 0, 0, 0)', material.navIndicator);
+
+  await snapshot(page, '1-capture');
+
   // --- camera permission and live preview ------------------------------------
   await page.click('#camera-enable');
   await page.waitForSelector('#camera-live:not([hidden])', { timeout: 15000 });
@@ -75,6 +115,8 @@ try {
   });
   check('camera stream is live', video.hasStream && video.width > 0 && video.readyState >= 2,
     `${video.width}x${video.height} readyState=${video.readyState}`);
+
+  await snapshot(page, '2-camera');
 
   // --- capture, upload, OCR, review -----------------------------------------
   await page.click('#camera-capture');
@@ -102,16 +144,22 @@ try {
   const released = await page.evaluate(() => !document.getElementById('camera-preview').srcObject);
   check('camera is released after capture', released);
 
+  await snapshot(page, '3-review');
+
   // --- validation ------------------------------------------------------------
-  await page.fill('#review-total', '0');
-  await page.click('#view-review button[type="submit"]');
+  await page.fill('#review-total input', '0');
+  await page.click('#review-send');
   await page.waitForSelector('#review-error:not([hidden])', { timeout: 5000 });
   check('a zero total is refused', true, (await page.textContent('#review-error'))?.trim());
 
+  // M3 puts the error on the field itself, not only in a message below it.
+  const fieldFlagged = await page.evaluate(() => document.getElementById('review-total').error === true);
+  check('the total field is marked in error', fieldFlagged);
+
   // --- a real total goes through --------------------------------------------
-  await page.fill('#review-merchant', 'BROWSER TEST CAFE');
-  await page.fill('#review-total', '12,66'); // comma decimal, as a French keyboard gives
-  await page.click('#view-review button[type="submit"]');
+  await page.fill('#review-merchant input', 'BROWSER TEST CAFE');
+  await page.fill('#review-total input', '12,66'); // comma decimal, as a French keyboard gives
+  await page.click('#review-send');
   await page.waitForSelector('#view-history:not([hidden])', { timeout: 15000 });
 
   // The history view appears before the list it shows: navigating kicks off a fetch
@@ -134,8 +182,14 @@ try {
   check('a comma decimal was accepted as 12.66', historyText.includes('12.66'),
     historyText.trim().slice(0, 60));
 
+  await snapshot(page, '4-history');
+
+  await page.click('.navigation-bar__item[data-view="settings"]');
+  await page.waitForSelector('#view-settings:not([hidden])', { timeout: 5000 });
+  await snapshot(page, '5-settings');
+
   // --- French ----------------------------------------------------------------
-  await page.selectOption('#language', 'fr');
+  await page.click('#language-toggle');
   await page.waitForSelector('#app:not([hidden])', { timeout: 15000 });
   await page.waitForFunction(
     () => document.querySelector('#view-capture h2')?.textContent?.includes('Capturer'),
@@ -145,7 +199,16 @@ try {
   check('switching to French relabels the app', true, await page.textContent('#view-capture h2'));
 
   const frenchCamera = await page.textContent('#camera-enable');
-  check('camera prompt is French too', frenchCamera?.includes('appareil photo'), frenchCamera);
+  check('camera prompt is French too', frenchCamera?.includes('appareil photo'), frenchCamera?.trim());
+
+  // Text-field labels are a component property, not text; they must follow too.
+  await page.click('.navigation-bar__item[data-view="settings"]');
+  await page.waitForSelector('#view-settings:not([hidden])', { timeout: 5000 });
+  const frenchLabel = await page.evaluate(() => document.getElementById('settings-endpoint').label);
+  check('Material field labels are French too', frenchLabel?.includes("point d'accès"), frenchLabel);
+
+  await page.click('.navigation-bar__item[data-view="capture"]');
+  await snapshot(page, '6-capture-fr');
 
   check('no uncaught page errors', consoleErrors.length === 0, consoleErrors.join(' | ').slice(0, 200));
 } catch (error) {

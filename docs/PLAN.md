@@ -13,7 +13,8 @@ system. Installing it to the home screen makes it behave like an app.
 | Concern | Choice | Rationale |
 |---|---|---|
 | Server | ASP.NET Core on .NET 10 (current LTS) | Matches the team's .NET preference; hosts the API, the static front end and the sync queue in one process |
-| Front end | Hand-written HTML/CSS/JS, no framework or build step | The app is four screens; a build pipeline would cost more than it saves. Nothing to compile means nothing to keep compiling |
+| Front end | Material Design 3: Google's Material Web components, plain HTML/JS, no framework | The official M3 controls give correct text fields, buttons, switch and dialog behaviour — states, focus rings, accessibility — without writing them. The app is four screens, so no framework on top |
+| Design tokens | M3 colour scheme generated from the brand seed `#1F6F54` with `material-color-utilities`; Roboto and Material Symbols self-hosted | Every colour is an M3 role, so light and dark mode come from one palette and re-theming is one constant. Nothing loads from a CDN at runtime |
 | Camera | `navigator.mediaDevices.getUserMedia` | The browser's own permission prompt, a live preview, and a frame grabbed to canvas. `<input capture>` is kept as a fallback |
 | OCR | Tesseract 5 on the server (`eng+fra`) | Keeps a 17MB language download off every phone, is faster on server CPU, and works on any browser. Invoked as a subprocess, so an OCR crash cannot take the web server down |
 | Storage | SQLite (`sqlite-net-base`) + photos on disk | One file to back up. `-base` rather than `-pcl` so the app binds to the system SQLite the OS patches |
@@ -61,11 +62,15 @@ ReceiptCapture.slnx
 │       ├── Security/                 # access gate
 │       ├── Services/                 # capture workflow, settings, background sync
 │       └── wwwroot/                  # the front end and PWA assets
+│           ├── lib/material.js       #   Material Web components, bundled (generated)
+│           ├── css/theme.css         #   M3 colour scheme, light + dark (generated)
+│           └── css/fonts.css, fonts/ #   Roboto, self-hosted (generated)
 ├── tests/
 │   ├── ReceiptCapture.Core.Tests/    # 132 unit tests
-│   ├── ReceiptCapture.Web.Tests/     # 34 tests, incl. OCR against real images
-│   └── browser/                      # Playwright: the camera flow
+│   ├── ReceiptCapture.Web.Tests/     # 35 tests, incl. OCR against real images
+│   └── browser/                      # Playwright: camera flow and access gate
 ├── tools/                            # resource generation and checking
+│   └── material/                     # builds the vendored Material assets
 └── Dockerfile
 ```
 
@@ -124,12 +129,52 @@ so the browser never sees a key.
 Receipt parsing is deliberately independent of the interface language: a French
 receipt parses correctly for a user reading the app in English, and vice versa.
 
+## 5b. Material Design 3
+
+The interface follows Material Design 3 and uses Google's own implementation of
+it, the Material Web components (`@material/web`), for every control: outlined
+text fields and select, filled / tonal / outlined / text buttons, switch, dialog,
+progress indicator and icons. The pieces that library does not ship — the top app
+bar, navigation bar, cards and snackbar — are built to the M3 specs directly on
+the same design tokens.
+
+`@material/web` is in maintenance mode pending new maintainers: it is complete
+and still published, but will not gain components. That is an acceptable trade
+for an app this size, and it is contained — the page talks to the components
+through standard properties (`value`, `label`, `error`) and to the theme through
+`--md-sys-*` custom properties, so replacing the library later would not touch
+the colour scheme or the layout.
+
+Nothing is fetched from a CDN. `tools/material/build.mjs` bundles the components
+with esbuild, generates the colour scheme from the brand seed, copies Roboto and
+builds a sprite of the Material Symbols the UI uses, all into `wwwroot`, with a
+`THIRD_PARTY_NOTICES.txt` covering everything shipped. The output is committed,
+so running or deploying the app needs no Node; only changing the Material assets
+does. CI rebuilds them and fails if the committed copy has drifted.
+
+Three things a Material Web page has to handle that a plain HTML page does not:
+
+- **Localizing a component is a property, not text.** Setting `textContent` on a
+  button would delete its icon, and a text field's label is its `label`
+  property. Markup says which: `data-i18n`, `data-i18n-label`,
+  `data-i18n-supporting`.
+- **Enter does not submit a form on its own.** A Material field keeps its
+  `<input>` in a shadow root, outside the `<form>`, so the browser's implicit
+  submission never fires. It is restored for the access-code and settings forms,
+  and deliberately not for the review form, where an accidental Enter would send
+  an unfinished receipt.
+- **Stacking.** Material fields put `z-index: 1` on their outlines and the dialog
+  paints its scrim at `z-index: 1`. The page content is its own stacking context,
+  and the bars sit at exactly 1, so fields scroll beneath the bars and the scrim
+  still dims them.
+
 ## 6. Phases
 
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Core: models, parser (en/fr), REST connector, repository, sync queue, 132 tests | **Done** |
-| 2 | Web app: camera capture, server OCR, review, history, settings, access gate, PWA, Docker, 34 API tests + browser test | **Done** |
+| 2 | Web app: camera capture, server OCR, review, history, settings, access gate, PWA, Docker, 35 API tests + browser tests | **Done** |
+| 2b | Material Design 3: official Material Web components, generated M3 colour scheme, Roboto, Material Symbols | **Done** |
 | 3 | Crop and deskew before upload, multi-page receipts, duplicate detection, categories pulled from the accounting system | Next |
 | 4 | QuickBooks and Xero connectors (OAuth2), proper multi-user accounts replacing the shared access code | Later |
 
@@ -138,8 +183,10 @@ receipt parses correctly for a user reading the app in English, and vice versa.
 | Layer | How it is checked |
 |---|---|
 | Parser, connector, storage, sync | 132 unit tests (`ReceiptCapture.Core.Tests`) |
-| OCR and the API | 34 tests (`ReceiptCapture.Web.Tests`), including Tesseract run against generated English and French receipt images |
-| Camera capture, upload, review, French | Playwright against real Chromium with a fake camera (`tests/browser`) |
+| OCR and the API | 35 tests (`ReceiptCapture.Web.Tests`), including Tesseract run against generated English and French receipt images |
+| Camera capture, upload, review, French, Material assets | Playwright against real Chromium with a fake camera (`tests/browser/camera-flow.mjs`) |
+| Access-code screen, including Enter-to-submit | Playwright against a gated instance (`tests/browser/access-gate.mjs`) |
+| Vendored Material assets match their source | CI rebuilds `tools/material` and fails on any difference |
 | Localization references | `tools/check-resources.py` |
 
 The browser test is not optional decoration: `getUserMedia`, the `<video>` element

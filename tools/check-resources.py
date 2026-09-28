@@ -46,12 +46,14 @@ def main():
 
     used = set()
 
-    # data-i18n="Key" in the markup
+    # data-i18n="Key" (text), data-i18n-label="Key" and data-i18n-supporting="Key"
+    # (Material text-field properties) in the markup
     for path in glob.glob(os.path.join(WEB, 'wwwroot', '**', '*.html'), recursive=True):
-        used |= set(re.findall(r'data-i18n="([A-Za-z0-9_]+)"', read(path)))
+        used |= set(re.findall(r'data-i18n(?:-label|-supporting)?="([A-Za-z0-9_]+)"', read(path)))
 
     # t('Key') and t("Key") in the front-end script
-    for path in glob.glob(os.path.join(WEB, 'wwwroot', '**', '*.js'), recursive=True):
+    for path in [p for p in glob.glob(os.path.join(WEB, 'wwwroot', '**', '*.js'), recursive=True)
+                 if os.sep + 'lib' + os.sep not in p]:
         body = read(path)
         used |= set(re.findall(r"\bt\(\s*'([A-Za-z0-9_]+)'", body))
         used |= set(re.findall(r'\bt\(\s*"([A-Za-z0-9_]+)"', body))

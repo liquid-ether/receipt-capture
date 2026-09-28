@@ -5,7 +5,8 @@ it, lets you correct what it read, and sends it to your accounting system.
 English and French.
 
 Open it in your phone's browser, tap **Use the camera**, allow access, and shoot.
-Add it to your home screen and it behaves like an app.
+Add it to your home screen and it behaves like an app. The interface is Material
+Design 3, built on Google's Material Web components, in light and dark.
 
 The design and roadmap are in [`docs/PLAN.md`](docs/PLAN.md).
 
@@ -32,8 +33,9 @@ The design and roadmap are in [`docs/PLAN.md`](docs/PLAN.md).
 | `src/ReceiptCapture.Core` | Models, parsing, connectors, storage, sync, en/fr resources. No ASP.NET dependency, so it tests fast and anywhere. |
 | `src/ReceiptCapture.Web` | The server: JSON API, OCR, background sync, and the front end in `wwwroot`. |
 | `tests/ReceiptCapture.Core.Tests` | 132 unit tests over the parser, connector, repository and sync queue. |
-| `tests/ReceiptCapture.Web.Tests` | 34 tests over the API, including OCR run against real receipt images. |
-| `tests/browser` | Playwright test of the camera flow in real Chromium. |
+| `tests/ReceiptCapture.Web.Tests` | 35 tests over the API, including OCR run against real receipt images. |
+| `tests/browser` | Playwright tests of the camera flow and the access-code screen in real Chromium. |
+| `tools/material` | Builds the vendored Material Design 3 assets the app serves. |
 
 ## Running it
 
@@ -160,7 +162,7 @@ dotnet test ReceiptCapture.slnx
 python3 tools/check-resources.py
 ```
 
-The camera flow needs a browser:
+The camera flow and the access-code screen need a browser:
 
 ```powershell
 cd tests/browser
@@ -168,7 +170,28 @@ npm install
 npx playwright install chromium
 # with the app running on http://127.0.0.1:5199
 node camera-flow.mjs
+# with a second instance started with ReceiptCapture__AccessCode=test-access-code
+node access-gate.mjs http://127.0.0.1:5202 test-access-code
 ```
+
+Set `SCREENSHOT_DIR` to have either script save a screenshot of each screen.
+
+## Material Design
+
+The interface uses Google's Material Web components with an M3 colour scheme
+generated from the brand colour `#1F6F54`. Everything is self-hosted — components,
+Roboto and Material Symbols are built into `wwwroot` and committed, so the app
+needs no Node and loads nothing from a CDN. To change the brand colour, add an
+icon or upgrade the components:
+
+```powershell
+cd tools/material
+npm ci
+npm run build
+```
+
+Edit `SEED` or `ICONS` in `tools/material/build.mjs` first. CI rebuilds these
+assets and fails if the committed copy does not match.
 
 ## Language
 

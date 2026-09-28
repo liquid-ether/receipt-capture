@@ -4,12 +4,19 @@
 // credential, the sync queue and the OCR. This file is the camera, the forms and
 // the translations, and it holds no secrets of its own.
 
+// Registers the Material Web components before anything below touches them.
+import './lib/material.js';
+
+const LANGUAGE_NAMES = { en: 'English', fr: 'Français' };
+const ICON_SPRITE = '/icons/symbols.svg';
+
 const state = {
   strings: {},
   categories: [],
   lang: 'en',
   draft: null,
   stream: null,
+  snackbarTimer: 0,
 };
 
 /* ------------------------------------------------------------------ helpers */
@@ -26,6 +33,59 @@ function setMessage(element, text, isError = false) {
   element.textContent = text ?? '';
   element.classList.toggle('message--error', Boolean(isError));
   show(element, Boolean(text));
+}
+
+/** A Material Symbol from the sprite, ready to drop into markup. */
+function icon(name, slot) {
+  const element = document.createElement('md-icon');
+  if (slot) element.slot = slot;
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  use.setAttribute('href', `${ICON_SPRITE}#${name}`);
+  svg.append(use);
+  element.append(svg);
+
+  return element;
+}
+
+/** A Material button with an optional leading icon and a text label. */
+function button(tag, label, iconName) {
+  const element = document.createElement(tag);
+  element.type = 'button';
+  if (iconName) element.append(icon(iconName, 'icon'));
+  element.append(document.createTextNode(label));
+  return element;
+}
+
+/** Brief confirmation at the bottom of the screen; M3 keeps these to one line. */
+function snack(text) {
+  const bar = $('snackbar');
+  window.clearTimeout(state.snackbarTimer);
+
+  bar.textContent = text ?? '';
+  show(bar, Boolean(text));
+
+  if (text) {
+    state.snackbarTimer = window.setTimeout(() => show(bar, false), 4000);
+  }
+}
+
+/**
+ * Asks before anything is thrown away, using the M3 dialog rather than the
+ * browser's native confirm box. Resolves true only on an explicit "delete".
+ */
+function confirmDestructive(headline, message) {
+  const dialog = $('confirm-dialog');
+  $('confirm-headline').textContent = headline;
+  $('confirm-message').textContent = message;
+  $('confirm-accept').textContent = t('Common_Delete', 'Delete');
+  $('confirm-cancel').textContent = t('Common_Cancel', 'Cancel');
+
+  return new Promise((resolve) => {
+    dialog.addEventListener('closed', () => resolve(dialog.returnValue === 'confirm'), { once: true });
+    dialog.show();
+  });
 }
 
 /** Wraps fetch so a dropped connection reads as a message, not an unhandled rejection. */
@@ -62,15 +122,34 @@ async function api(path, options = {}) {
 
 /* ------------------------------------------------------------ localization */
 
+/**
+ * Applies the string table. Material components take their text through
+ * properties, not child text — setting textContent on a button would also wipe
+ * out its icon — so each kind of target has its own attribute.
+ */
 function applyStrings() {
   for (const node of document.querySelectorAll('[data-i18n]')) {
     const value = state.strings[node.dataset.i18n];
-    if (value) {
-      node.textContent = value;
-    }
+    if (value) node.textContent = value;
   }
+
+  for (const node of document.querySelectorAll('[data-i18n-label]')) {
+    const value = state.strings[node.dataset.i18nLabel];
+    if (value) node.label = value;
+  }
+
+  for (const node of document.querySelectorAll('[data-i18n-supporting]')) {
+    const value = state.strings[node.dataset.i18nSupporting];
+    if (value) node.supportingText = value;
+  }
+
   document.documentElement.lang = state.lang;
   document.title = t('App_Title', 'Receipt Capture');
+
+  // The toggle names the language it switches to, in that language.
+  const other = state.lang === 'fr' ? 'en' : 'fr';
+  $('language-toggle-label').textContent = LANGUAGE_NAMES[other];
+  $('language-toggle').dataset.lang = other;
 }
 
 async function loadBootstrap() {
@@ -79,17 +158,25 @@ async function loadBootstrap() {
   state.categories = data.categories;
   state.lang = data.language;
 
-  $('language').value = state.lang;
   applyStrings();
 
   const category = $('review-category');
-  category.innerHTML = '<option value=""></option>';
+  category.replaceChildren(selectOption('', ''));
   for (const item of state.categories) {
-    const option = document.createElement('option');
-    option.value = item.code;
-    option.textContent = item.name;
-    category.append(option);
+    category.append(selectOption(item.code, item.name));
   }
+}
+
+function selectOption(value, label) {
+  const option = document.createElement('md-select-option');
+  option.value = value;
+
+  const headline = document.createElement('div');
+  headline.slot = 'headline';
+  headline.textContent = label;
+  option.append(headline);
+
+  return option;
 }
 
 /**
@@ -105,13 +192,25 @@ function setLanguage(lang) {
 /* -------------------------------------------------------------- navigation */
 
 function showView(name) {
+  // A confirmation belongs to the screen that produced it; carried onto the next
+  // one it would sit on top of that screen's own buttons.
+  snack('');
+
   for (const view of document.querySelectorAll('.view')) {
     show(view, view.id === `view-${name}`);
   }
-  for (const tab of document.querySelectorAll('.tab')) {
-    const active = tab.dataset.view === name;
-    tab.setAttribute('aria-current', active ? 'page' : 'false');
+
+  // Review is reached from Capture, so Capture stays the selected destination.
+  const destination = name === 'review' ? 'capture' : name;
+  for (const item of document.querySelectorAll('.navigation-bar__item')) {
+    if (item.dataset.view === destination) {
+      item.setAttribute('aria-current', 'page');
+    } else {
+      item.removeAttribute('aria-current');
+    }
   }
+
+  window.scrollTo({ top: 0 });
 
   if (name === 'history') refreshHistory();
   if (name === 'settings') loadSettings();
@@ -253,22 +352,21 @@ function addTaxRow(tax = { code: 'TAX', amount: '', rate: null }) {
   row.className = 'tax-row';
   row.dataset.rate = tax.rate ?? '';
 
-  const code = document.createElement('input');
-  code.type = 'text';
+  const code = document.createElement('md-outlined-text-field');
+  code.label = t('Review_TaxCode', 'Code');
   code.value = tax.code ?? '';
-  code.setAttribute('aria-label', t('Review_TaxCode', 'Code'));
+  code.dataset.role = 'code';
 
-  const amount = document.createElement('input');
-  amount.type = 'text';
+  const amount = document.createElement('md-outlined-text-field');
+  amount.label = t('Review_TaxAmount', 'Amount');
   amount.inputMode = 'decimal';
-  amount.value = tax.amount ?? '';
-  amount.setAttribute('aria-label', t('Review_TaxAmount', 'Amount'));
+  amount.value = tax.amount === '' || tax.amount == null ? '' : String(tax.amount);
+  amount.dataset.role = 'amount';
 
-  const remove = document.createElement('button');
+  const remove = document.createElement('md-icon-button');
   remove.type = 'button';
-  remove.className = 'button button--danger';
-  remove.textContent = '✕';
   remove.setAttribute('aria-label', t('Review_RemoveTax', 'Remove'));
+  remove.append(icon('delete'));
   remove.addEventListener('click', () => row.remove());
 
   row.append(code, amount, remove);
@@ -278,17 +376,18 @@ function addTaxRow(tax = { code: 'TAX', amount: '', rate: null }) {
 function fillReviewForm(draft) {
   $('review-merchant').value = draft.merchant ?? '';
   $('review-date').value = draft.transactionDate ?? '';
-  $('review-subtotal').value = draft.subtotal ?? '';
-  $('review-tip').value = draft.tip ?? '';
-  $('review-total').value = draft.total ?? '';
+  $('review-subtotal').value = draft.subtotal == null ? '' : String(draft.subtotal);
+  $('review-tip').value = draft.tip == null ? '' : String(draft.tip);
+  $('review-total').value = draft.total == null ? '' : String(draft.total);
   $('review-currency').value = draft.currency ?? 'CAD';
   $('review-category').value = draft.category ?? '';
   $('review-notes').value = draft.notes ?? '';
+  clearTotalError();
 
   const image = $('review-image');
   image.src = draft.imageUrl ?? '';
   image.alt = t('Review_Title', '');
-  show(image, Boolean(draft.imageUrl));
+  show($('review-image-card'), Boolean(draft.imageUrl));
 
   $('review-taxes').replaceChildren();
   for (const tax of draft.taxes ?? []) {
@@ -298,9 +397,14 @@ function fillReviewForm(draft) {
   const warnings = $('review-warnings');
   warnings.replaceChildren();
   for (const warning of draft.warnings ?? []) {
-    const p = document.createElement('p');
-    p.textContent = warning;
-    warnings.append(p);
+    const line = document.createElement('div');
+    line.className = 'warning-line md-typescale-body-medium';
+
+    const text = document.createElement('p');
+    text.textContent = warning;
+
+    line.append(icon('warning'), text);
+    warnings.append(line);
   }
   show(warnings, (draft.warnings ?? []).length > 0);
 
@@ -321,24 +425,39 @@ function parseAmount(value) {
 function collectTaxes() {
   return [...$('review-taxes').querySelectorAll('.tax-row')]
     .map((row) => {
-      const [code, amount] = row.querySelectorAll('input');
-      const parsed = parseAmount(amount.value);
+      const code = row.querySelector('[data-role="code"]').value;
+      const parsed = parseAmount(row.querySelector('[data-role="amount"]').value);
       const rate = row.dataset.rate === '' ? null : Number(row.dataset.rate);
 
-      return parsed === null || !code.value.trim()
+      return parsed === null || !code.trim()
         ? null
-        : { code: code.value.trim().toUpperCase(), amount: parsed, rate };
+        : { code: code.trim().toUpperCase(), amount: parsed, rate };
     })
     .filter(Boolean);
+}
+
+function clearTotalError() {
+  const total = $('review-total');
+  total.error = false;
+  total.errorText = '';
 }
 
 async function submitReview(event) {
   event.preventDefault();
   setMessage($('review-error'), '');
+  clearTotalError();
 
   const total = parseAmount($('review-total').value);
   if (total === null || total <= 0) {
-    setMessage($('review-error'), t('Validation_TotalPositive'), true);
+    const message = t('Validation_TotalPositive');
+
+    // Flag the field itself, the M3 way, and say it once more beside the actions
+    // where the eye goes after pressing Send.
+    const field = $('review-total');
+    field.error = true;
+    field.errorText = message;
+    setMessage($('review-error'), message, true);
+    field.focus();
     return;
   }
 
@@ -364,7 +483,7 @@ async function submitReview(event) {
 
     state.draft = null;
     showView('history');
-    setMessage($('history-message'), result?.message ?? '');
+    snack(result?.message ?? '');
   } catch (error) {
     setMessage($('review-error'), error.message, true);
   }
@@ -372,7 +491,12 @@ async function submitReview(event) {
 
 async function discardDraft() {
   if (!state.draft) return;
-  if (!window.confirm(t('Review_DiscardConfirm', 'Discard this receipt?'))) return;
+
+  const confirmed = await confirmDestructive(
+    t('Review_Discard', 'Discard'),
+    t('Review_DiscardConfirm', 'Discard this receipt and its photo?'),
+  );
+  if (!confirmed) return;
 
   try {
     await api(`/api/receipts/${state.draft.id}`, { method: 'DELETE' });
@@ -403,51 +527,72 @@ async function refreshHistory() {
 
 function renderHistoryItem(receipt) {
   const item = document.createElement('li');
-  item.className = 'list__item';
+  item.className = 'card card--outlined receipt-card';
 
   const top = document.createElement('div');
-  top.className = 'list__row';
-  top.innerHTML = '<span class="list__merchant"></span><span></span>';
-  top.children[0].textContent = receipt.merchant;
-  top.children[1].textContent = receipt.amountText;
+  top.className = 'receipt-card__top';
 
-  const bottom = document.createElement('div');
-  bottom.className = 'list__row';
-  bottom.innerHTML = '<span class="caption"></span><span class="caption"></span>';
-  bottom.children[0].textContent = receipt.dateText;
-  bottom.children[1].textContent = receipt.statusText;
+  const merchant = document.createElement('span');
+  merchant.className = 'receipt-card__merchant md-typescale-title-medium';
+  merchant.textContent = receipt.merchant;
 
-  item.append(top, bottom);
+  const amount = document.createElement('span');
+  amount.className = 'receipt-card__amount md-typescale-title-medium';
+  amount.textContent = receipt.amountText;
+
+  top.append(merchant, amount);
+
+  const meta = document.createElement('div');
+  meta.className = 'receipt-card__meta';
+
+  const date = document.createElement('span');
+  date.className = 'md-typescale-body-medium muted';
+  date.textContent = receipt.dateText;
+
+  const status = document.createElement('span');
+  status.className = `status status--${receipt.status} md-typescale-label-medium`;
+  status.textContent = receipt.statusText;
+
+  meta.append(date, status);
+  item.append(top, meta);
 
   if (receipt.lastError) {
     const error = document.createElement('p');
-    error.className = 'list__error';
+    error.className = 'receipt-card__error md-typescale-body-small';
     error.textContent = receipt.lastError;
     item.append(error);
   }
 
   const actions = document.createElement('div');
-  actions.className = 'list__actions';
+  actions.className = 'actions';
 
   if (receipt.canRetry) {
-    const retry = document.createElement('button');
-    retry.type = 'button';
-    retry.className = 'button button--secondary';
-    retry.textContent = t('History_Retry', 'Try again');
+    const retry = button('md-text-button', t('History_Retry', 'Try again'), 'refresh');
     retry.addEventListener('click', async () => {
-      await api(`/api/receipts/${receipt.id}/retry`, { method: 'POST' });
+      try {
+        await api(`/api/receipts/${receipt.id}/retry`, { method: 'POST' });
+      } catch (error) {
+        setMessage($('history-message'), error.message, true);
+      }
       refreshHistory();
     });
     actions.append(retry);
   }
 
-  const remove = document.createElement('button');
-  remove.type = 'button';
-  remove.className = 'button button--danger';
-  remove.textContent = t('History_Delete', 'Delete');
+  const remove = button('md-text-button', t('History_Delete', 'Delete'), 'delete');
+  remove.classList.add('button--danger');
   remove.addEventListener('click', async () => {
-    if (!window.confirm(t('Review_DiscardConfirm', 'Delete this receipt?'))) return;
-    await api(`/api/receipts/${receipt.id}`, { method: 'DELETE' });
+    const confirmed = await confirmDestructive(
+      t('History_Delete', 'Delete'),
+      t('Review_DiscardConfirm', 'Delete this receipt?'),
+    );
+    if (!confirmed) return;
+
+    try {
+      await api(`/api/receipts/${receipt.id}`, { method: 'DELETE' });
+    } catch (error) {
+      setMessage($('history-message'), error.message, true);
+    }
     refreshHistory();
   });
   actions.append(remove);
@@ -457,33 +602,41 @@ function renderHistoryItem(receipt) {
 }
 
 async function syncNow() {
-  const button = $('history-sync');
-  button.disabled = true;
+  const syncButton = $('history-sync');
+  syncButton.disabled = true;
+  setMessage($('history-message'), '');
 
   try {
     const summary = await api('/api/sync', { method: 'POST' });
-    setMessage($('history-message'), summary.message);
+    snack(summary.message);
     await refreshHistory();
   } catch (error) {
     setMessage($('history-message'), error.message, true);
   } finally {
-    button.disabled = false;
+    syncButton.disabled = false;
   }
 }
 
 /* ---------------------------------------------------------------- settings */
 
 async function loadSettings() {
+  setMessage($('settings-message'), '');
+
   try {
     const settings = await api('/api/settings');
 
     $('settings-endpoint').value = settings.endpoint ?? '';
     $('settings-health').value = settings.healthEndpoint ?? '';
     $('settings-header').value = settings.apiKeyHeaderName ?? 'X-API-Key';
-    $('settings-include-image').checked = settings.includeImage;
-    $('settings-key-status').textContent = settings.hasApiKey
-      ? t('Settings_ApiKeyConfigured')
-      : t('Settings_ApiKeyMissing');
+    $('settings-include-image').selected = settings.includeImage;
+
+    const status = $('settings-key-status');
+    status.replaceChildren(
+      icon(settings.hasApiKey ? 'lock' : 'error'),
+      document.createTextNode(settings.hasApiKey ? t('Settings_ApiKeyConfigured') : t('Settings_ApiKeyMissing')),
+    );
+    status.classList.toggle('key-status--ok', settings.hasApiKey);
+    status.classList.toggle('key-status--missing', !settings.hasApiKey);
   } catch (error) {
     setMessage($('settings-message'), error.message, true);
   }
@@ -501,11 +654,11 @@ async function saveSettings(event) {
         endpoint: $('settings-endpoint').value.trim(),
         healthEndpoint: $('settings-health').value.trim() || null,
         apiKeyHeaderName: $('settings-header').value.trim(),
-        includeImage: $('settings-include-image').checked,
+        includeImage: $('settings-include-image').selected,
       }),
     });
 
-    setMessage($('settings-message'), t('Settings_Saved'));
+    snack(t('Settings_Saved'));
   } catch (error) {
     setMessage($('settings-message'), error.message, true);
   }
@@ -516,7 +669,11 @@ async function testConnection() {
 
   try {
     const result = await api('/api/settings/test', { method: 'POST' });
-    setMessage($('settings-message'), result.message, !result.success);
+    if (result.success) {
+      snack(result.message);
+    } else {
+      setMessage($('settings-message'), result.message, true);
+    }
   } catch (error) {
     setMessage($('settings-message'), error.message, true);
   }
@@ -549,7 +706,9 @@ async function submitAccessCode(event) {
 
   setMessage(
     $('gate-error'),
-    response.status === 429 ? t('Session_TooManyAttempts') : t('Session_Invalid'),
+    response.status === 429
+      ? t('Session_TooManyAttempts', 'Too many attempts. Wait a few minutes and try again.')
+      : t('Session_Invalid', 'That code was not accepted.'),
     true,
   );
 }
@@ -565,6 +724,8 @@ function wireEvents() {
     await uploadPhoto(blob);
   });
 
+  // A Material button cannot be a <label>, so it forwards the click instead.
+  $('photo-choose').addEventListener('click', () => $('photo-file').click());
   $('photo-file').addEventListener('change', async (event) => {
     const file = event.target.files?.[0];
     event.target.value = ''; // lets the same file be picked twice in a row
@@ -578,6 +739,14 @@ function wireEvents() {
   });
 
   $('review-form').addEventListener('submit', submitReview);
+  $('review-total').addEventListener('input', clearTotalError);
+
+  // ISO 4217 codes are three capital letters; keep the field to exactly that.
+  $('review-currency').addEventListener('input', (event) => {
+    const field = event.currentTarget;
+    const cleaned = field.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3);
+    if (cleaned !== field.value) field.value = cleaned;
+  });
   $('review-add-tax').addEventListener('click', () => addTaxRow());
   $('review-discard').addEventListener('click', discardDraft);
 
@@ -591,11 +760,32 @@ function wireEvents() {
   });
 
   $('gate-form').addEventListener('submit', submitAccessCode);
-  $('language').addEventListener('change', (event) => setLanguage(event.target.value));
+  $('language-toggle').addEventListener('click', (event) => setLanguage(event.currentTarget.dataset.lang));
 
-  for (const tab of document.querySelectorAll('.tab')) {
-    tab.addEventListener('click', () => showView(tab.dataset.view));
+  for (const item of document.querySelectorAll('.navigation-bar__item')) {
+    item.addEventListener('click', () => showView(item.dataset.view));
   }
+
+  // M3 top app bar: it takes a container tone once content scrolls under it.
+  const bar = document.querySelector('.top-app-bar');
+  window.addEventListener('scroll', () => {
+    bar.classList.toggle('top-app-bar--scrolled', window.scrollY > 0);
+  }, { passive: true });
+
+  // Material text fields keep their <input> in a shadow root, outside the form, so
+  // the browser's own "Enter submits the form" never fires. Restore it — but only
+  // for forms that opt in. On the review form an accidental Enter in the merchant
+  // field would send an unfinished receipt to the accounting system.
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || event.isComposing) return;
+
+    const field = event.target.closest?.('md-outlined-text-field');
+    const form = field?.closest('form[data-submit-on-enter]');
+    if (!form || field.type === 'textarea') return;
+
+    event.preventDefault();
+    form.requestSubmit();
+  });
 
   // Releasing the camera when the tab is hidden turns the phone's camera light off.
   document.addEventListener('visibilitychange', () => {
@@ -615,7 +805,9 @@ async function main() {
   show($('sign-out'), session.accessCodeRequired);
 
   if (session.accessCodeRequired && !session.admitted) {
-    // Strings are behind the gate, so the prompt shows its HTML defaults first.
+    // The string table is public, so the gate can speak the visitor's language
+    // before they are admitted. If it cannot load, the English defaults stand.
+    await loadBootstrap().catch(() => {});
     showGate();
     return;
   }

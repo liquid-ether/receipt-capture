@@ -2,7 +2,9 @@
 // network is not. Receipts themselves are never cached here — they live on the
 // server, and a stale list of someone's expenses would be worse than no list.
 
-const CACHE = 'receipt-capture-v1';
+// Bump on any change to the shell below; an installed app otherwise keeps serving
+// the copy it cached on install.
+const CACHE = 'receipt-capture-v2';
 
 const SHELL = [
   '/',
@@ -10,6 +12,12 @@ const SHELL = [
   '/styles.css',
   '/app.js',
   '/manifest.webmanifest',
+  '/lib/material.js',
+  '/css/theme.css',
+  '/css/fonts.css',
+  '/fonts/roboto-latin-400-normal.woff2',
+  '/fonts/roboto-latin-500-normal.woff2',
+  '/icons/symbols.svg',
   '/icons/icon.svg',
   '/icons/icon-192.png',
 ];
