@@ -1,0 +1,467 @@
+/*
+ * Receipt Capture — Material Design 3 layout.
+ *
+ * Every colour here is an M3 colour role from css/theme.css, generated from the
+ * brand seed; nothing is a raw hex value. That is what keeps light and dark
+ * mode consistent, and what lets a re-seed re-theme the whole app in one step.
+ * Controls are the official Material Web components; this file covers the
+ * pieces that library does not ship (top app bar, navigation bar, cards,
+ * snackbar) and the page layout, following the M3 specs for each.
+ */
+
+/*
+ * The `hidden` attribute only sets `display: none` at the very bottom of the
+ * cascade, so any rule here that sets `display` would otherwise defeat it.
+ * Everything the script hides uses the attribute, so make it win outright.
+ */
+[hidden] { display: none !important; }
+
+:root {
+  /* M3 shape scale */
+  --shape-extra-small: 4px;
+  --shape-small: 8px;
+  --shape-medium: 12px;
+  --shape-large: 16px;
+  --shape-full: 9999px;
+
+  /* M3 motion: emphasized decelerate, for things arriving on screen */
+  --motion-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --motion-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  --navigation-bar-height: 80px;
+  --top-app-bar-height: 64px;
+  --content-max-width: 640px;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* A focused field scrolled into view must not end up under either bar. */
+  scroll-padding-top: calc(var(--top-app-bar-height) + env(safe-area-inset-top) + 8px);
+  scroll-padding-bottom: calc(var(--navigation-bar-height) + env(safe-area-inset-bottom) + 16px);
+}
+
+body {
+  margin: 0;
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-ref-typeface-plain);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, p { margin: 0; }
+
+.muted { color: var(--md-sys-color-on-surface-variant); }
+
+md-icon svg { display: block; }
+
+/* ---------------------------------------------------------- top app bar */
+
+/*
+ * Stacking, which three separate things depend on:
+ *   - .content is its own stacking context (isolation below), so the z-index: 1
+ *     Material text fields put on their outlines stays inside it and cannot paint
+ *     over a bar when the field scrolls beneath one;
+ *   - the bars sit at z-index 1, above that context;
+ *   - md-dialog paints its scrim at z-index 1 from later in the page, so it still
+ *     dims both bars. A bar above 1 would stay bright on top of the scrim.
+ */
+.top-app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: calc(var(--top-app-bar-height) + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) 8px 0 16px;
+  background: var(--md-sys-color-surface);
+  transition: background-color 200ms var(--motion-standard);
+}
+
+/* M3: the bar takes a container tone once content scrolls beneath it. */
+.top-app-bar--scrolled { background: var(--md-sys-color-surface-container); }
+
+.top-app-bar__logo { color: var(--md-sys-color-primary); }
+
+.top-app-bar__title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.content {
+  isolation: isolate;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 8px 16px calc(var(--navigation-bar-height) + 24px + env(safe-area-inset-bottom));
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: view-in 300ms var(--motion-emphasized-decelerate);
+}
+
+@keyframes view-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.view__header { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; }
+
+.view__header--with-action {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-heading {
+  color: var(--md-sys-color-primary);
+  margin-top: 8px;
+}
+
+/* ----------------------------------------------------------------- cards */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border-radius: var(--shape-medium);
+  color: var(--md-sys-color-on-surface);
+}
+
+.card--filled { background: var(--md-sys-color-surface-container-highest); }
+
+.card--outlined {
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.card--elevated {
+  background: var(--md-sys-color-surface-container-low);
+  /* M3 elevation level 1 */
+  box-shadow:
+    0 1px 2px 0 color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent),
+    0 1px 3px 1px color-mix(in srgb, var(--md-sys-color-shadow) 15%, transparent);
+}
+
+.card--flush { padding: 0; overflow: hidden; gap: 0; }
+
+.card--warning {
+  gap: 8px;
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.warning-line { display: flex; gap: 12px; align-items: flex-start; }
+.warning-line md-icon { --md-icon-size: 20px; flex: none; margin-top: 1px; }
+
+.card__hero-icon {
+  --md-icon-size: 40px;
+  color: var(--md-sys-color-primary);
+}
+
+/* --------------------------------------------------------------- actions */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.actions--start { justify-content: flex-start; }
+.actions--padded { padding: 12px 16px 16px; }
+
+.button--danger {
+  --md-text-button-label-text-color: var(--md-sys-color-error);
+  --md-text-button-hover-label-text-color: var(--md-sys-color-error);
+  --md-text-button-focus-label-text-color: var(--md-sys-color-error);
+  --md-text-button-pressed-label-text-color: var(--md-sys-color-error);
+  --md-text-button-icon-color: var(--md-sys-color-error);
+  --md-text-button-hover-state-layer-color: var(--md-sys-color-error);
+  --md-text-button-pressed-state-layer-color: var(--md-sys-color-error);
+}
+
+/* ------------------------------------------------------------------ forms */
+
+.form { display: flex; flex-direction: column; gap: 16px; }
+
+.form md-outlined-text-field,
+.form md-outlined-select,
+.gate__card md-outlined-text-field { width: 100%; }
+
+.form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form__row > * { min-width: 0; }
+
+/* The total is the one number that matters; M3 lets a field carry more weight. */
+.field--total {
+  --md-outlined-text-field-input-text-size: 24px;
+  --md-outlined-text-field-input-text-weight: 500;
+  --md-outlined-text-field-input-text-line-height: 32px;
+}
+
+.tax-list { display: flex; flex-direction: column; gap: 8px; }
+.tax-list:empty { display: none; }
+
+.tax-row {
+  display: grid;
+  grid-template-columns: 104px 1fr 48px;
+  gap: 8px;
+  align-items: center;
+}
+
+.tax-row md-outlined-text-field { width: 100%; }
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  cursor: pointer;
+}
+
+.key-status {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.key-status--ok { color: var(--md-sys-color-primary); }
+.key-status--missing { color: var(--md-sys-color-error); }
+
+/* -------------------------------------------------------- feedback & media */
+
+.message { color: var(--md-sys-color-on-surface-variant); }
+.message--error { color: var(--md-sys-color-error); }
+
+.busy {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--md-sys-color-on-surface-variant);
+  --md-circular-progress-size: 40px;
+}
+
+.camera__preview {
+  display: block;
+  width: 100%;
+  max-height: 60vh;
+  background: #000; /* a video letterbox is black in every theme */
+  object-fit: contain;
+}
+
+.receipt-image {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  background: var(--md-sys-color-surface-container);
+}
+
+/* ---------------------------------------------------------------- history */
+
+.receipt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.receipt-card { gap: 8px; }
+
+.receipt-card__top,
+.receipt-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.receipt-card__merchant {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.receipt-card__amount { flex: none; }
+
+.receipt-card__error { color: var(--md-sys-color-error); }
+
+.receipt-card .actions { margin: 0 -8px -8px 0; }
+
+/* Status as a small tonal label, coloured by what it means. */
+.status {
+  flex: none;
+  padding: 4px 12px;
+  border-radius: var(--shape-small);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.status--Pending,
+.status--Draft {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.status--Failed {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.empty-state md-icon { --md-icon-size: 48px; }
+
+/* -------------------------------------------------------- navigation bar */
+
+.navigation-bar {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: calc(var(--navigation-bar-height) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--md-sys-color-surface-container);
+}
+
+.navigation-bar__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 0 16px;
+  border: 0;
+  background: none;
+  color: var(--md-sys-color-on-surface-variant);
+  font: inherit;
+  cursor: pointer;
+  outline: none;
+  --md-focus-ring-shape: var(--shape-large);
+}
+
+/* The 64x32 pill behind the icon that marks the selected destination. */
+.navigation-bar__indicator {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 32px;
+  border-radius: var(--shape-large);
+  transition: background-color 200ms var(--motion-standard);
+}
+
+.navigation-bar__indicator md-ripple { border-radius: inherit; }
+
+.navigation-bar__indicator md-icon { grid-area: 1 / 1; }
+
+.navigation-bar__item .icon--fill { display: none; }
+
+.navigation-bar__item[aria-current="page"] { color: var(--md-sys-color-on-surface); }
+
+.navigation-bar__item[aria-current="page"] .navigation-bar__indicator {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.navigation-bar__item[aria-current="page"] .icon--outline { display: none; }
+.navigation-bar__item[aria-current="page"] .icon--fill { display: block; }
+.navigation-bar__item[aria-current="page"] .navigation-bar__label { font-weight: 700; }
+
+/* --------------------------------------------------------------- snackbar */
+
+.snackbar {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(var(--navigation-bar-height) + 16px + env(safe-area-inset-bottom));
+  z-index: 3;
+  max-width: calc(var(--content-max-width) - 32px);
+  margin: 0 auto;
+  padding: 14px 16px;
+  border-radius: var(--shape-extra-small);
+  background: var(--md-sys-color-inverse-surface);
+  color: var(--md-sys-color-inverse-on-surface);
+  /* M3 elevation level 3 */
+  box-shadow:
+    0 1px 3px 0 color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent),
+    0 4px 8px 3px color-mix(in srgb, var(--md-sys-color-shadow) 15%, transparent);
+  animation: snackbar-in 250ms var(--motion-emphasized-decelerate);
+}
+
+@keyframes snackbar-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ------------------------------------------------------------ access gate */
+
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--md-sys-color-surface);
+}
+
+.gate__card { width: 100%; max-width: 380px; padding: 24px; }
+
+.gate__icon {
+  --md-icon-size: 32px;
+  color: var(--md-sys-color-primary);
+}
+
+/* ------------------------------------------------------------------ misc */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}

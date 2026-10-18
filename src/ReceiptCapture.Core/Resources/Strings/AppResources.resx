@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App_Title" xml:space="preserve">
+    <value>Receipt Capture</value>
+    <comment>Application name</comment>
+  </data>
+  <data name="Tab_Capture" xml:space="preserve">
+    <value>Capture</value>
+  </data>
+  <data name="Tab_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Tab_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Capture_Title" xml:space="preserve">
+    <value>Capture a receipt</value>
+  </data>
+  <data name="Capture_TakePhoto" xml:space="preserve">
+    <value>Take a photo</value>
+  </data>
+  <data name="Capture_ChooseFromLibrary" xml:space="preserve">
+    <value>Choose from library</value>
+  </data>
+  <data name="Capture_Reading" xml:space="preserve">
+    <value>Reading the receipt…</value>
+  </data>
+  <data name="Capture_CameraUnavailable" xml:space="preserve">
+    <value>The camera is not available on this device.</value>
+  </data>
+  <data name="Capture_NothingRecognized" xml:space="preserve">
+    <value>No text could be read from that photo. Try again with more light.</value>
+  </data>
+  <data name="Capture_PendingCount" xml:space="preserve">
+    <value>{0} receipt(s) waiting to be sent</value>
+    <comment>{0} is a count</comment>
+  </data>
+  <data name="Review_Title" xml:space="preserve">
+    <value>Check the details</value>
+  </data>
+  <data name="Review_Merchant" xml:space="preserve">
+    <value>Merchant</value>
+  </data>
+  <data name="Review_Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Review_Currency" xml:space="preserve">
+    <value>Currency</value>
+  </data>
+  <data name="Review_Subtotal" xml:space="preserve">
+    <value>Subtotal</value>
+  </data>
+  <data name="Review_Taxes" xml:space="preserve">
+    <value>Taxes</value>
+  </data>
+  <data name="Review_Tip" xml:space="preserve">
+    <value>Tip</value>
+  </data>
+  <data name="Review_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Review_Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Review_Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="Review_AddTax" xml:space="preserve">
+    <value>Add a tax line</value>
+  </data>
+  <data name="Review_RemoveTax" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Review_TaxCode" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="Review_TaxAmount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="Review_Send" xml:space="preserve">
+    <value>Send to accounting</value>
+  </data>
+  <data name="Review_Discard" xml:space="preserve">
+    <value>Discard</value>
+  </data>
+  <data name="Review_DiscardConfirm" xml:space="preserve">
+    <value>Discard this receipt and its photo?</value>
+  </data>
+  <data name="Review_Queued" xml:space="preserve">
+    <value>Receipt queued for the accounting system.</value>
+  </data>
+  <data name="Warning_MerchantNotFound" xml:space="preserve">
+    <value>The merchant name could not be read. Please enter it.</value>
+  </data>
+  <data name="Warning_DateNotFound" xml:space="preserve">
+    <value>No date was found on the receipt. Please enter it.</value>
+  </data>
+  <data name="Warning_DateAmbiguous" xml:space="preserve">
+    <value>The date could be read two ways. Please confirm it.</value>
+  </data>
+  <data name="Warning_TotalNotFound" xml:space="preserve">
+    <value>The total could not be read. Please enter it.</value>
+  </data>
+  <data name="Warning_TotalComputed" xml:space="preserve">
+    <value>The total was calculated from the subtotal and taxes. Please confirm it.</value>
+  </data>
+  <data name="Warning_TotalsDoNotReconcile" xml:space="preserve">
+    <value>Subtotal, taxes and total do not add up. Please check the amounts.</value>
+  </data>
+  <data name="Status_Draft" xml:space="preserve">
+    <value>Draft</value>
+  </data>
+  <data name="Status_Pending" xml:space="preserve">
+    <value>Waiting to send</value>
+  </data>
+  <data name="Status_Sent" xml:space="preserve">
+    <value>Sent</value>
+  </data>
+  <data name="Status_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="History_Title" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="History_Empty" xml:space="preserve">
+    <value>No receipts yet. Capture one to get started.</value>
+  </data>
+  <data name="History_SyncNow" xml:space="preserve">
+    <value>Send pending receipts</value>
+  </data>
+  <data name="History_Retry" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="History_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="History_SyncResult" xml:space="preserve">
+    <value>{0} sent, {1} to retry, {2} failed</value>
+    <comment>{0},{1},{2} are counts</comment>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings_AccountingSection" xml:space="preserve">
+    <value>Accounting system</value>
+  </data>
+  <data name="Settings_Endpoint" xml:space="preserve">
+    <value>Endpoint URL</value>
+  </data>
+  <data name="Settings_EndpointPlaceholder" xml:space="preserve">
+    <value>https://books.example.com/api/receipts</value>
+  </data>
+  <data name="Settings_ApiKey" xml:space="preserve">
+    <value>API key</value>
+  </data>
+  <data name="Settings_ApiKeyHeader" xml:space="preserve">
+    <value>API key header</value>
+  </data>
+  <data name="Settings_IncludeImage" xml:space="preserve">
+    <value>Send the receipt photo</value>
+  </data>
+  <data name="Settings_TestConnection" xml:space="preserve">
+    <value>Test connection</value>
+  </data>
+  <data name="Settings_ConnectionOk" xml:space="preserve">
+    <value>Connection succeeded.</value>
+  </data>
+  <data name="Settings_ConnectionFailed" xml:space="preserve">
+    <value>Connection failed: {0}</value>
+    <comment>{0} is the error detail</comment>
+  </data>
+  <data name="Settings_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Settings_Saved" xml:space="preserve">
+    <value>Settings saved.</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Settings_ApiKeyNote" xml:space="preserve">
+    <value>The API key is set on the server and is never sent to this browser.</value>
+  </data>
+  <data name="Settings_ApiKeyConfigured" xml:space="preserve">
+    <value>An API key is configured.</value>
+  </data>
+  <data name="Settings_ApiKeyMissing" xml:space="preserve">
+    <value>No API key is configured. Set ReceiptCapture__Accounting__ApiKey on the server.</value>
+  </data>
+  <data name="Settings_HealthEndpoint" xml:space="preserve">
+    <value>Test URL (optional)</value>
+  </data>
+  <data name="Camera_Explain" xml:space="preserve">
+    <value>To photograph a receipt, this app needs permission to use your camera. Your browser will ask you to allow it.</value>
+  </data>
+  <data name="Camera_Enable" xml:space="preserve">
+    <value>Use the camera</value>
+  </data>
+  <data name="Camera_Capture" xml:space="preserve">
+    <value>Take the photo</value>
+  </data>
+  <data name="Camera_Cancel" xml:space="preserve">
+    <value>Close the camera</value>
+  </data>
+  <data name="Camera_PermissionDenied" xml:space="preserve">
+    <value>Camera access was refused. Allow it in your browser settings, or choose a photo instead.</value>
+  </data>
+  <data name="Camera_Unavailable" xml:space="preserve">
+    <value>No camera is available on this device. You can choose a photo instead.</value>
+  </data>
+  <data name="Camera_InsecureContext" xml:space="preserve">
+    <value>Browsers only allow camera access over HTTPS. Open this app with an https:// address.</value>
+  </data>
+  <data name="Capture_ChooseFile" xml:space="preserve">
+    <value>Choose a photo instead</value>
+  </data>
+  <data name="Capture_Uploading" xml:space="preserve">
+    <value>Sending the photo…</value>
+  </data>
+  <data name="Session_Title" xml:space="preserve">
+    <value>Enter the access code</value>
+  </data>
+  <data name="Session_CodeLabel" xml:space="preserve">
+    <value>Access code</value>
+  </data>
+  <data name="Session_Submit" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="Session_Invalid" xml:space="preserve">
+    <value>That code was not accepted.</value>
+  </data>
+  <data name="Session_TooManyAttempts" xml:space="preserve">
+    <value>Too many attempts. Wait a few minutes and try again.</value>
+  </data>
+  <data name="Session_SignOut" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="Common_Retry" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Error_Network" xml:space="preserve">
+    <value>Could not reach the server. Check your connection and try again.</value>
+  </data>
+  <data name="Validation_TotalRequired" xml:space="preserve">
+    <value>Enter the total shown on the receipt.</value>
+  </data>
+  <data name="Validation_TotalPositive" xml:space="preserve">
+    <value>The total must be greater than zero.</value>
+  </data>
+  <data name="Validation_EndpointRequired" xml:space="preserve">
+    <value>Enter the endpoint URL of your accounting system.</value>
+  </data>
+  <data name="Validation_EndpointHttps" xml:space="preserve">
+    <value>The endpoint URL must start with https://.</value>
+  </data>
+  <data name="Category_MEALS" xml:space="preserve">
+    <value>Meals</value>
+  </data>
+  <data name="Category_TRAVEL" xml:space="preserve">
+    <value>Travel</value>
+  </data>
+  <data name="Category_LODGING" xml:space="preserve">
+    <value>Lodging</value>
+  </data>
+  <data name="Category_FUEL" xml:space="preserve">
+    <value>Fuel</value>
+  </data>
+  <data name="Category_OFFICE_SUPPLIES" xml:space="preserve">
+    <value>Office supplies</value>
+  </data>
+  <data name="Category_SOFTWARE" xml:space="preserve">
+    <value>Software</value>
+  </data>
+  <data name="Category_TELECOM" xml:space="preserve">
+    <value>Telecommunications</value>
+  </data>
+  <data name="Category_ENTERTAINMENT" xml:space="preserve">
+    <value>Entertainment</value>
+  </data>
+  <data name="Category_PROFESSIONAL_SERVICES" xml:space="preserve">
+    <value>Professional services</value>
+  </data>
+  <data name="Category_OTHER" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Common_Error" xml:space="preserve">
+    <value>Something went wrong</value>
+  </data>
+</root>

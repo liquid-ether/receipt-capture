@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <!--
+      The test host needs a native SQLite. This bundled build carries an unfixed
+      advisory (GHSA-2m69-gcr7-jv3q) and is therefore a test-only dependency: it is
+      never referenced by ReceiptCapture.Core or by the deployed web app, which uses
+      the SQLite its operating system maintains. bundle_green is used here because
+      it works identically on a developer's Windows, macOS or Linux machine, which
+      the system-SQLite provider does not.
+    -->
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Acknowledged for the test host only. Re-review when SQLitePCLRaw publishes a
+      build with a patched e_sqlite3, and drop this line once it is available.
+    -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2m69-gcr7-jv3q" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ReceiptCapture.Core\ReceiptCapture.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

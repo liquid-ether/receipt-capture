@@ -1,0 +1,36 @@
+## .NET build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+*.user
+*.suo
+*.userosscache
+
+## Test results
+[Tt]est[Rr]esult*/
+coverage*.json
+coverage*.xml
+coverage*.info
+*.trx
+
+## Rider / Visual Studio / VS Code
+.vs/
+.idea/
+*.DotSettings.user
+
+## macOS
+.DS_Store
+
+## Web app runtime data: receipts, photos and the data-protection key ring
+App_Data/
+
+## Browser test dependencies
+tests/browser/node_modules/
+
+## Local secrets — the accounting API key belongs in the environment, never in the repo
+appsettings.Local.json
+appsettings.*.Local.json
+*.local.env
+secrets.json

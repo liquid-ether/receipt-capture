@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ReceiptCapture.Web</RootNamespace>
+    <UserSecretsId>receipt-capture-web</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Binds sqlite-net to the SQLite the operating system ships and patches, rather
+      than a bundled e_sqlite3 build carrying an unfixed advisory
+      (GHSA-2m69-gcr7-jv3q). The server therefore needs libsqlite3 present, which
+      every mainstream Linux image and macOS already has; see docs/PLAN.md.
+    -->
+    <PackageReference Include="SQLitePCLRaw.bundle_sqlite3" Version="2.1.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReceiptCapture.Core\ReceiptCapture.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReceiptCapture.Web.Tests" />
+  </ItemGroup>
+
+</Project>

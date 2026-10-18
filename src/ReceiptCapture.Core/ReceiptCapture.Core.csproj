@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ReceiptCapture.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      sqlite-net-base is sqlite-net without a bundled native SQLite, so each host
+      picks its own provider. The web app binds to the system SQLite its OS ships
+      and patches (SQLitePCLRaw.bundle_sqlite3); the bundled e_sqlite3 builds carry
+      an unfixed high-severity advisory (GHSA-2m69-gcr7-jv3q) and are kept out of
+      the deployed app entirely.
+      Whichever provider a host chooses, it must call SQLitePCL.Batteries_V2.Init()
+      once at startup before any repository call.
+    -->
+    <PackageReference Include="sqlite-net-base" Version="1.9.172" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="2.1.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReceiptCapture.Core.Tests" />
+  </ItemGroup>
+
+  <!-- Resources/Strings/*.resx are picked up by the SDK's default globbing. -->
+
+</Project>
